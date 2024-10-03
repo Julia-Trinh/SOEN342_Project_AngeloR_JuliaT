@@ -5,6 +5,8 @@
 | Angelo Reoligio | 40191187 | areoligio@gmail.com |
 | Julia Trinh | 40245980 | juliatrinh2002@gmail.com |
 
+[Link to diagrams in Lucidchart](https://lucid.app/lucidchart/d39fc3b2-8aa1-4cdf-90cf-a56ade058fb9/edit?viewport_loc=-1829%2C-435%2C2219%2C1031%2C0_0&invitationId=inv_bde9c3b7-9928-48ee-8d6e-89dad73e93a2)
+
 ## Iteration 1
 ### 27/09 - 04/10
 #### Requirements & Artifacts to Produce/Deliverables
