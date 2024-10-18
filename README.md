@@ -1,11 +1,12 @@
 # SOEN342 Project - Angelo Reoligio & Julia Trinh
 
-| Name    | Student ID | Email |
-| -------- | ------- | ------- |
-| Angelo Reoligio | 40191187 | areoligio@gmail.com |
-| Julia Trinh | 40245980 | juliatrinh2002@gmail.com |
+| Name    | Student ID | Email | GitHub Username |
+| -------- | ------- | ------- | ------- |
+| Angelo Reoligio | 40191187 | areoligio@gmail.com | Angewoah |
+| Julia Trinh | 40245980 | juliatrinh2002@gmail.com | Julia-Trinh |
 
-[Link to diagrams in Lucidchart](https://lucid.app/lucidchart/d39fc3b2-8aa1-4cdf-90cf-a56ade058fb9/edit?viewport_loc=-1829%2C-435%2C2219%2C1031%2C0_0&invitationId=inv_bde9c3b7-9928-48ee-8d6e-89dad73e93a2)
+## Useful Links
+[Link to diagrams in Draw.io](https://drive.google.com/file/d/1B-DQEIrg5-q5uexEtV7EV0EstZs1_v_w/view?usp=sharing)
 
 ## Iteration 1
 ### 27/09 - 04/10
