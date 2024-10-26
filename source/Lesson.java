@@ -1,38 +1,20 @@
 package source;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Lesson {
-    private String type;
-    private boolean isGroup;
-    private Instructor instructor;
+    private String activityType;
+    private int capacity;
+    private Timeslot timeslot;
+    private List<Offering> offerings;
 
-    public Lesson(String type, boolean isGroup, Instructor instructor) {
-        this.type = type;
-        this.isGroup = isGroup;
-        this.instructor = instructor;
+    public Lesson(String activityType, int capacity, Timeslot timeslot) {
+        this.activityType = activityType;
+        this.capacity = capacity;
+        this.timeslot = timeslot;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public boolean isGroup() {
-        return isGroup;
-    }
-
-    public Instructor getInstructor() {
-        return instructor;
-    }
-
-    public void setInstructor(Instructor instructor) {
-        this.instructor = instructor;
-    }
-
-    @Override
-    public String toString() {
-        return "Lesson{" +
-                "type='" + type + '\'' +
-                ", isGroup=" + isGroup +
-                ", instructor=" + instructor +
-                '}';
+    public void addOffering(Offering offering){
+        offerings.add(offering);
     }
 }
