@@ -4,12 +4,19 @@ import java.util.List;
 
 public class Instructor extends RegisteredUser{
     private String activityType;
-    private List <String> cityAvailabilities;
-    // TO-DO: add offerings attributes
+    private List<String> cityAvailabilities;
+    private List<Offering> offerings;
+    private Schedule schedule; // TO-DO: add schedule initialization
 
     public Instructor(String name, String phoneNumber, String activityType, List<String> cityAvailabilities){
         super(name, phoneNumber);
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
+    }
+
+    public void pickOffering(Offering offering){
+        // TO-DO: add if to check if the schedule works, and add to schedule
+        offerings.add(offering);
+        offering.assignOffering(this);
     }
 }

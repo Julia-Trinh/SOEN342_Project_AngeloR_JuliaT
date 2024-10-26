@@ -2,26 +2,10 @@ package source;
 
 public class Booking {
     private Client client;
-    private Timeslot timeslot;
+    private Offering offering;
 
-    public Booking(Client client, Timeslot timeSlot) {
+    public Booking(Client client, Offering offering) {
         this.client = client;
-        this.timeslot = timeSlot;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public Timeslot getTimeSlot() {
-        return timeslot;
-    }
-
-    @Override
-    public String toString() {
-        return "Booking{" +
-                "client=" + client +
-                ", timeSlot=" + timeslot +
-                '}';
+        this.offering = offering;
     }
 }
