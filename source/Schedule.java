@@ -1,10 +1,4 @@
 package source;
-
-public class Schedule {
-    
-}
-package source;
-
 import java.util.ArrayList;
 import java.util.List;
 
