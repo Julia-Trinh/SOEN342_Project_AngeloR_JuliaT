@@ -1,8 +1,8 @@
 package source;
 
 public class RegisteredUser {
-    String name;
-    String phoneNumber;
+    private String name;
+    private String phoneNumber;
 
     public RegisteredUser(String name, String phoneNumber){
         this.name = name;

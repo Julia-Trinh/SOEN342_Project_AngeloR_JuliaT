@@ -1,12 +1,12 @@
 package source;
 
-public class TimeSlot {
+public class Timeslot {
     private String day;
     private String startTime;
     private String endTime;
     private Lesson lesson;
 
-    public TimeSlot(String day, String startTime, String endTime, Lesson lesson) {
+    public Timeslot(String day, String startTime, String endTime, Lesson lesson) {
         this.day = day;
         this.startTime = startTime;
         this.endTime = endTime;

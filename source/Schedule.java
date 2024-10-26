@@ -3,17 +3,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Schedule {
-    private List<TimeSlot> timeSlots;
+    private List<Timeslot> timeslots;
 
     public Schedule() {
-        this.timeSlots = new ArrayList<>();
+        this.timeslots = new ArrayList<>();
     }
 
-    public void addTimeSlot(TimeSlot timeSlot) {
-        timeSlots.add(timeSlot);
+    public void addTimeSlot(Timeslot timeslot) {
+        timeslots.add(timeslot);
     }
 
-    public List<TimeSlot> getTimeSlots() {
-        return timeSlots;
+    public List<Timeslot> getTimeSlots() {
+        return timeslots;
     }
 }
