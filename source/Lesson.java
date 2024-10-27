@@ -21,4 +21,8 @@ public class Lesson {
     public Timeslot geTimeslot(){
         return this.timeslot;
     }
+
+    public int getCapacity(){
+        return capacity;
+    }
 }

@@ -12,9 +12,13 @@ public class Client extends RegisteredUser{
     }
 
     public void addBooking(Offering offering){
-        // TO-DO: check lesson capacity and offerings of that lesson to see if client can still book
-        Booking booking = new Booking(this, offering);
-        bookings.add(booking);
-        offering.addBooking(booking);
+        if(offering.getIsAvailableToPublic()){
+            Booking booking = new Booking(this, offering);
+            bookings.add(booking);
+            offering.addBooking(booking);
+
+            // Check if lesson is full
+            if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
+        }
     }
 }
