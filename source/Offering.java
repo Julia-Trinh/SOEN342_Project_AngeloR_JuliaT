@@ -35,5 +35,19 @@ public class Offering {
         bookings.add(booking);
     }
 
-    // TO-DO: make non-available to public when lesson capacity is full
+    public List<Booking> getBookings(){
+        return bookings;
+    }
+
+    public Lesson getLesson(){
+        return lesson;
+    }
+
+    public boolean getIsAvailableToPublic(){
+        return isAvailableToPublic;
+    }
+
+    public void setIsAvailableToPublic(boolean availability){
+        this.isAvailableToPublic = availability;
+    }
 }
