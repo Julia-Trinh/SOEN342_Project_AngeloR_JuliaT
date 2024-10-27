@@ -12,16 +12,15 @@ public class Client extends RegisteredUser{
         this.age = age;
     }
 
+    public List<Booking> getBookings(){
+        return bookings;
+    }
+
     public void addBooking(Offering offering){
         if(offering.getIsAvailableToPublic()){
-
             //TO-DO: check Client's schedule
-            Booking booking = new Booking(this, offering);
-            bookings.add(booking);
-            offering.addBooking(booking);
-
-            // Check if lesson is full
-            if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
+            
+            Booking booking = new Booking(this, offering);  // added to bookings at creation
         }
     }
 }

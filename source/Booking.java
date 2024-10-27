@@ -9,5 +9,12 @@ public class Booking {
         this.client = client;
         this.offering = offering;
         this.bookingDetails = new BookingDetails();
+
+        // Add to associated classes
+        client.getBookings().add(this);
+        offering.addBooking(this);
+
+        // Check if lesson is full
+        if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
     }
 }
