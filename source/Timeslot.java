@@ -1,45 +1,18 @@
 package source;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Timeslot {
-    private String day;
+    private List<String> days;
     private String startTime;
     private String endTime;
     private Lesson lesson;
 
-    public Timeslot(String day, String startTime, String endTime, Lesson lesson) {
-        this.day = day;
+    public Timeslot(List<String> days, String startTime, String endTime, Lesson lesson) {
+        this.days = days;
         this.startTime = startTime;
         this.endTime = endTime;
         this.lesson = lesson;
     }
 
-    public String getDay() {
-        return day;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public Lesson getLesson() {
-        return lesson;
-    }
-
-    public void setLesson(Lesson lesson) {
-        this.lesson = lesson;
-    }
-
-    @Override
-    public String toString() {
-        return "TimeSlot{" +
-                "day='" + day + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", lesson=" + lesson +
-                '}';
-    }
 }
