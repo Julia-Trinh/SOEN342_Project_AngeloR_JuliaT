@@ -10,4 +10,12 @@ public class Booking {
         this.offering = offering;
         this.bookingDetails = new BookingDetails();
     }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public Offering getOffering() {
+        return offering;
+    }
 }
