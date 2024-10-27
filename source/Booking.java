@@ -1,6 +1,8 @@
 package source;
 
 public class Booking {
+    // TO-DO: initialize bookingDetails
+    private BookingDetails bookingDetails;
     private Client client;
     private Offering offering;
 
