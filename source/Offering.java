@@ -36,6 +36,10 @@ public class Offering {
         return lesson;
     }
 
+    public Timeslot getLessonTimeslot(){
+        return lesson.getTimeslot();
+    }
+
     public boolean getIsAvailableToPublic(){
         return isAvailableToPublic;
     }
