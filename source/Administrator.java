@@ -15,9 +15,14 @@ public class Administrator extends RegisteredUser{
         // TO-DO: add new location to database (new Location(name, activityType, city, organization))
     }
 
-    public void createLocationTimeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule schedule){
-        // TO-DO: add schedule checking before adding the timeslot, if bad, return error message
-        schedule.addTimeSlot(new Timeslot(days, startTime, endTime, startDate, endDate));
+    public void createLocationTimeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule locationSchedule){
+        Timeslot timeslot = new Timeslot(days, startTime, endTime, startDate, endDate);
+        if (locationSchedule.isAvailableTimeslot(timeslot)) {
+            locationSchedule.addTimeSlot(timeslot);
+        }
+        else {
+            System.out.println("Error: Unable to add timeslot. Conflicting schedule detected.");
+        }
     }
 
     public void makeLesson(String activityType, int capacity, Timeslot timeslot){
@@ -27,10 +32,6 @@ public class Administrator extends RegisteredUser{
     public void addOffering(Lesson lesson, Location location){
         // TO-DO: add new offering to database (new Offering(Lesson lesson, Location location))
         // check if the location timeslots permits the lesson timeslots before creating a new offering
-    }
-
-    public void createOffering(){
-        //TODO (?)
         //needs connection to organization
         //maybe should have connection to organizations catalog to manage it
     }

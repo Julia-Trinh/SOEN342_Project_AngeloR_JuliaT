@@ -25,4 +25,8 @@ public class Location {
     public Schedule getSchedule(){
         return this.schedule;
     }
+
+    public String getCity(){
+        return this.city;
+    }
 }
