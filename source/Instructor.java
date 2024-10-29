@@ -15,7 +15,7 @@ public class Instructor extends RegisteredUser{
     }
 
     public void pickOffering(Offering offering){
-        // TO-DO: add if to check if the schedule works, and add to schedule
+        // TO-DO: also check if the location works
         if (schedule.isAvailableTimeslot(offering.getLessonTimeslot())){
             offerings.add(offering);
             offering.assignOffering(this);

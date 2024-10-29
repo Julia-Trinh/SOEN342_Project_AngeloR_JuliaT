@@ -10,17 +10,14 @@ public class Timeslot {
     private LocalTime endTime;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Lesson lesson;
 
-    public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Lesson lesson) {
+    public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) {
         this.days = days;
         this.startTime = startTime;
         this.endTime = endTime;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.lesson = lesson;
     }
-
 
     public List<String> getDays() {
         return days;
@@ -41,7 +38,6 @@ public class Timeslot {
     public LocalDate getEndDate() {
         return endDate;
     }
-
 
     public boolean isTimeslotOverlapping(Timeslot newTimeslot){
         //check if the date ranges overlap
