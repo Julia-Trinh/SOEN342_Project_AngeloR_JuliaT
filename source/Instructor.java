@@ -15,7 +15,7 @@ public class Instructor extends RegisteredUser{
     }
 
     public void pickOffering(Offering offering){
-        // TO-DO: add if to check if the schedule works, and add to schedule
+        // TO-DO: add if to check if the timeslot and location works, and add to schedule. If not, error message
         offerings.add(offering);
         offering.assignOffering(this);
     }
