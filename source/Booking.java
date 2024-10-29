@@ -17,4 +17,12 @@ public class Booking {
         // Check if lesson is full
         if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
     }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public Offering getOffering() {
+        return offering;
+    }
 }

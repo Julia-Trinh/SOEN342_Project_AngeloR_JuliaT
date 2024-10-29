@@ -12,7 +12,7 @@ public class Organization {
     }
 
     public void createOffering(Lesson lesson, Location location){
-        offerings.add(new Offering(lesson, location));
+        offerings.add(new Offering(lesson, location)); //create unassigned offering
     }
 
     public void addLocation(Location location){

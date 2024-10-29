@@ -28,4 +28,10 @@ public class Administrator extends RegisteredUser{
         // TO-DO: add new offering to database (new Offering(Lesson lesson, Location location))
         // check if the location timeslots permits the lesson timeslots before creating a new offering
     }
+
+    public void createOffering(){
+        //TODO (?)
+        //needs connection to organization
+        //maybe should have connection to organizations catalog to manage it
+    }
 }

@@ -15,8 +15,13 @@ public class Instructor extends RegisteredUser{
     }
 
     public void pickOffering(Offering offering){
-        // TO-DO: add if to check if the timeslot and location works, and add to schedule. If not, error message
-        offerings.add(offering);
-        offering.assignOffering(this);
+        // TO-DO: also check if the location works
+        if (schedule.isAvailableTimeslot(offering.getLessonTimeslot())){
+            offerings.add(offering);
+            offering.assignOffering(this);
+        }
+        else{
+            System.out.println("Error: Unable to add offering. Conflicting schedule detected.");
+        }
     }
 }

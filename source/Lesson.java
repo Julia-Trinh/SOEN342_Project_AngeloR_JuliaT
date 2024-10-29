@@ -18,7 +18,7 @@ public class Lesson {
         offerings.add(offering);
     }
 
-    public Timeslot geTimeslot(){
+    public Timeslot getTimeslot(){
         return this.timeslot;
     }
 
