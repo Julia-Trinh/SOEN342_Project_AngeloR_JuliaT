@@ -15,7 +15,7 @@ public class Offering {
         this.isAvailableToPublic = false;
 
         // Add Lesson timeslot in Location schedule
-        location.getSchedule().addTimeSlot(lesson.geTimeslot());
+        location.getSchedule().addTimeSlot(lesson.getTimeslot());
     }
 
     public void assignOffering(Instructor instructor){
@@ -46,5 +46,9 @@ public class Offering {
 
     public void setIsAvailableToPublic(boolean availability){
         this.isAvailableToPublic = availability;
+    }
+
+    public Location geLocation(){
+        return location;
     }
 }
