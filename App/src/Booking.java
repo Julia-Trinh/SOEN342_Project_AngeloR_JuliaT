@@ -1,4 +1,4 @@
-package source;
+package src;
 
 public class Booking {
     private BookingDetails bookingDetails;

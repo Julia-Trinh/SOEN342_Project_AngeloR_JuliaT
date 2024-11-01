@@ -1,8 +1,7 @@
-package source;
-import java.util.ArrayList;
-import java.util.List;
-import java.time.LocalTime;
+package src;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 public class Timeslot {
     private List<String> days;

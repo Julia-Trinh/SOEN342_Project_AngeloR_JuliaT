@@ -1,4 +1,4 @@
-package source;
+package src;
 
 public class Guardian extends Client{
     private String guardianName;

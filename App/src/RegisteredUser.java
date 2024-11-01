@@ -1,4 +1,4 @@
-package source;
+package src;
 
 public class RegisteredUser {
     private String name;
