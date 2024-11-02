@@ -1,5 +1,3 @@
-package src;
-
 public class Booking {
     private BookingDetails bookingDetails;
     private Client client;

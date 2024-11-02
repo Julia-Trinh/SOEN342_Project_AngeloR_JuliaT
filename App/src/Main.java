@@ -1,39 +1,52 @@
-package src;
 import java.sql.*;
 import java.util.Scanner;
-
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner key = new Scanner(System.in);
-        while (true) {
-            defaultMenu();
-            int userOption = key.nextInt();
-        
-            switch (userOption) {
-                case 1:
-                    userLogin();
-                    break;
-                case 2:
-                    userRegistration();
-                    break;
-                case 3:
-                    browsableOfferings();
-                    break;
-                case 4:
-                    System.out.println("Exiting the menu.");
-                    break;
-        
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    break;
+        SQLiteTest test = new SQLiteTest();
+        ResultSet rs;
+
+        try {
+            rs = test.displayUsers();
+            while (rs.next()) {
+                System.out.println(rs.getString("username") + " " + rs.getString("name"));
             }
-        
-            if (userOption == 4) {
-                break;
-            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        key.close();
+        // Scanner key = new Scanner(System.in);
+        // while (true) {
+        //     defaultMenu();
+        //     int userOption = key.nextInt();
+        
+        //     switch (userOption) {
+        //         case 1:
+        //             userLogin();
+        //             break;
+        //         case 2:
+        //             userRegistration();
+        //             break;
+        //         case 3:
+        //             browsableOfferings();
+        //             break;
+        //         case 4:
+        //             System.out.println("Exiting the menu.");
+        //             break;
+        
+        //         default:
+        //             System.out.println("Invalid option. Please try again.");
+        //             break;
+        //     }
+        
+        //     if (userOption == 4) {
+        //         break;
+        //     }
+        // }
+        // key.close();
     }
 
     public static void defaultMenu(){

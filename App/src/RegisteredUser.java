@@ -1,5 +1,3 @@
-package src;
-
 public class RegisteredUser {
     private String name;
     private String phoneNumber;
