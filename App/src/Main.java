@@ -1,4 +1,3 @@
-import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
@@ -6,6 +5,10 @@ public class Main {
         Database db = new Database();
         try {
             db.getConnection();
+            // Timeslot ts = new Timeslot(List.of("Tuesdays", "Wednesdays"), LocalTime.of(13, 0), LocalTime.of(15, 0), LocalDate.of(2024, 11, 1), LocalDate.of(2024, 12, 1));
+            // Lesson l = new Lesson("Judo", 5, ts);
+            // Organization concordia = new Organization("Concordia");
+            // Location lo = new Location("Hall", "Judo", "Montreal", concordia);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -114,7 +117,7 @@ public class Main {
             switch (userOption) {
                 case 1:
                     // register as customer
-                    //create client instance and add to database
+                    // option to register as a guardian
                     break;
                 case 2:
                     // register as instructor

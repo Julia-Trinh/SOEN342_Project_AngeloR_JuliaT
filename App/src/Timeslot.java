@@ -1,22 +1,34 @@
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Timeslot {
+    private int id;
     private List<String> days;
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDate startDate;
     private LocalDate endDate;
     private Schedule schedule;
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+    Database db = new Database();
 
-    public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) {
+    public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException {
         this.days = days;
         this.startTime = startTime;
         this.endTime = endTime;
         this.startDate = startDate;
         this.endDate = endDate;
-        // TO-DO: change all attribute into a string (for the list, make a string separated by commas) before storing into the db
+
+        // Change all attribute into a string before storing into the db
+        id = db.addTimeslot(String.join(", ", days), startTime.format(timeFormatter), endTime.format(timeFormatter), startDate.format(dateFormatter), endDate.format(dateFormatter));
+    }
+
+    public int getId(){
+        return id;
     }
 
     public List<String> getDays() {

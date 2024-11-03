@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+// THIS FILE CAN BE REMOVED AT THE END. THIS IS JUST A REFERENCE
+
 public class SQLiteTest {
     private static Connection con;
     private static boolean hasData = false;
