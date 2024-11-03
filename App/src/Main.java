@@ -1,14 +1,14 @@
-import java.sql.*;
 import java.util.Scanner;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
-        SQLiteTest test = new SQLiteTest();
+
+        /* 
+    	SQLiteTest test = new SQLiteTest();
         ResultSet rs;
 
         try {
+
             rs = test.displayUsers();
             while (rs.next()) {
                 System.out.println(rs.getString("username") + " " + rs.getString("name"));
@@ -18,6 +18,17 @@ public class Main {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+            */
+
+
+        Database db = new Database();
+        try {
+            db.getConnection();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        
         // Scanner key = new Scanner(System.in);
         // while (true) {
         //     defaultMenu();
@@ -47,6 +58,8 @@ public class Main {
         //     }
         // }
         // key.close();
+        
+        
     }
 
     public static void defaultMenu(){
