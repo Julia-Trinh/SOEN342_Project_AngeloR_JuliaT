@@ -8,6 +8,7 @@ public class Timeslot {
     private LocalTime endTime;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Schedule schedule;
 
     public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) {
         this.days = days;
@@ -15,6 +16,7 @@ public class Timeslot {
         this.endTime = endTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        // TO-DO: change all attribute into a string (for the list, make a string separated by commas) before storing into the db
     }
 
     public List<String> getDays() {
@@ -35,6 +37,15 @@ public class Timeslot {
 
     public LocalDate getEndDate() {
         return endDate;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+        // TO-DO: add in db
     }
 
     public boolean isTimeslotOverlapping(Timeslot newTimeslot){
