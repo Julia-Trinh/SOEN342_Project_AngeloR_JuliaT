@@ -14,6 +14,8 @@ public class Schedule {
         //add timeslot if valid
         if(isAvailableTimeslot(timeslot)){
             timeslots.add(timeslot);
+            timeslot.setSchedule(this);
+            // TO-DO: add to db, convert the list of all timeslot ids into a string seperated by commas
         }
         else{
             System.out.println("Error: Timeslot conflicts with schedule. Timeslot not added to schedule.");

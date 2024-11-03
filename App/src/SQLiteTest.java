@@ -21,6 +21,21 @@ public class SQLiteTest {
         }
         return res;
     }
+    // To then display:
+    // SQLiteTest test = new SQLiteTest();
+        // ResultSet rs;
+
+        // try {
+
+        //     rs = test.displayUsers();
+        //     while (rs.next()) {
+        //         System.out.println(rs.getString("username") + " " + rs.getString("name"));
+        //     }
+        // } catch (ClassNotFoundException e) {
+        //     e.printStackTrace();
+        // } catch (SQLException e) {
+        //     e.printStackTrace();
+        // }
     
 
     private void getConnection() throws ClassNotFoundException, SQLException {
