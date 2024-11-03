@@ -27,7 +27,9 @@ public class Database {
         " ("+ 
         "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
         "name VARCHAR(255), " + 
-        "phoneNumber INTEGER" +
+        "phoneNumber INTEGER," +
+        "username VARCHAR(255), " +
+        "password VARCHAR(255) " +
         ")";
     
     private static final String CREATE_TABLE_INSTRUCTOR = 
@@ -37,7 +39,9 @@ public class Database {
         "name VARCHAR(255), " + 
         "activityType VARCHAR(255), " +
         "cityAvailabilities VARCHAR(255), " +
-        "scheduleId INTEGER" +
+        "scheduleId INTEGER," +
+        "username VARCHAR(255), " +
+        "password VARCHAR(255) " +
         ")";
     
     private static final String CREATE_TABLE_CLIENT = 
@@ -46,7 +50,9 @@ public class Database {
         "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
         "name VARCHAR(255), " + 
         "age INTEGER, " +
-        "scheduleId INTEGER " +
+        "scheduleId INTEGER, " +
+        "username VARCHAR(255), " +
+        "password VARCHAR(255) " +
         ")";
     
     private static final String CREATE_TABLE_GUARDIAN = 
