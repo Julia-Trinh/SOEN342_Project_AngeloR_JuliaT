@@ -1,14 +1,16 @@
-package src;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 public class Administrator extends RegisteredUser{
     private Organization organization;
+    Database db = new Database();
 
-    public Administrator(String name, String phoneNumber, Organization organization){
-        super(name, phoneNumber);
+    public Administrator(String username, String password, String name, int phoneNumber, Organization organization) throws ClassNotFoundException, SQLException{
+        super(username, password, name, phoneNumber);
         this.organization = organization;
+        db.addAdmin(username, password, name, phoneNumber);
     }
 
     public void addLocation(String name, String activityType, String city){
