@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
@@ -8,7 +9,6 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
         
         // Scanner key = new Scanner(System.in);
         // while (true) {
