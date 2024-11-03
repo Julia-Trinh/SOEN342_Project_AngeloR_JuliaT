@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -25,38 +26,54 @@ public class Database {
         private static final String CREATE_TABLE_ADMINISTRATOR = 
         "CREATE TABLE " + TABLE_ADMINISTRATOR + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255), " + 
-        "phoneNumber INTEGER" +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "username VARCHAR(255) NOT NULL, " +
+        "password VARCHAR(255) NOT NULL, " +
+        "name VARCHAR(255) NOT NULL, " + 
+        "phoneNumber INTEGER NOT NULL, " +
+        "PRIMARY KEY(id AUTOINCREMENT)" +
         ")";
     
     private static final String CREATE_TABLE_INSTRUCTOR = 
         "CREATE TABLE " + TABLE_INSTRUCTOR + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255), " + 
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "username VARCHAR(255) NOT NULL, " +
+        "password VARCHAR(255) NOT NULL, " +
+        "name VARCHAR(255) NOT NULL, " + 
+        "phoneNumber INTEGER NOT NULL, " +
         "activityType VARCHAR(255), " +
         "cityAvailabilities VARCHAR(255), " +
-        "scheduleId INTEGER" +
+        "scheduleId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT)" +
         ")";
     
     private static final String CREATE_TABLE_CLIENT = 
         "CREATE TABLE " + TABLE_CLIENT + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255), " + 
-        "age INTEGER, " +
-        "scheduleId INTEGER " +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "username VARCHAR(255) NOT NULL, " +
+        "password VARCHAR(255) NOT NULL, " +
+        "name VARCHAR(255) NOT NULL, " + 
+        "phoneNumber INTEGER NOT NULL, " +
+        "age INTEGER NOT NULL, " +
+        "scheduleId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT)" +
         ")";
     
     private static final String CREATE_TABLE_GUARDIAN = 
         "CREATE TABLE " + TABLE_GUARDIAN + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255), " + 
-        "phoneNumber INTEGER, " +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "username VARCHAR(255) NOT NULL, " +
+        "password VARCHAR(255) NOT NULL, " +
+        "name VARCHAR(255) NOT NULL, " + 
+        "phoneNumber INTEGER NOT NULL, " +
+        "age INTEGER NOT NULL, " +
         "clientId INTEGER," +
-        "relationship VARCHAR(255)" +
+        "guardianName VARCHAR(255), " + 
+        "relationship VARCHAR(255), " +
+        "PRIMARY KEY(id AUTOINCREMENT)" +
         ")";
     
     private static final String CREATE_TABLE_ORGANIZATION = 
@@ -179,5 +196,60 @@ public class Database {
                 e.printStackTrace();
             }
         }
+    }
+
+    // Add data to the database
+    public void addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?);");
+        prep.setString(1, username);
+        prep.setString(2, password);
+        prep.setString(3, name);
+        prep.setInt(4, phoneNumber);
+        prep.execute();
+    }
+
+    public void addInstructor(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?);");
+        prep.setString(1, username);
+        prep.setString(2, password);
+        prep.setString(3, name);
+        prep.setInt(4, phoneNumber);
+        prep.execute();
+    }
+
+    public void addClient(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Client (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?, ?);");
+        prep.setString(1, username);
+        prep.setString(2, password);
+        prep.setString(3, name);
+        prep.setInt(4, phoneNumber);
+        prep.setInt(5, age);
+        prep.execute();
+    }
+
+    public void addGuardian(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Guardian (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?, ?);");
+        prep.setString(1, username);
+        prep.setString(2, password);
+        prep.setString(3, name);
+        prep.setInt(4, phoneNumber);
+        prep.setInt(5, age);
+        prep.execute();
     }
 }

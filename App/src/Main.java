@@ -1,33 +1,14 @@
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
-        /* 
-    	SQLiteTest test = new SQLiteTest();
-        ResultSet rs;
-
-        try {
-
-            rs = test.displayUsers();
-            while (rs.next()) {
-                System.out.println(rs.getString("username") + " " + rs.getString("name"));
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-            */
-
-
         Database db = new Database();
         try {
             db.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
         
         // Scanner key = new Scanner(System.in);
         // while (true) {

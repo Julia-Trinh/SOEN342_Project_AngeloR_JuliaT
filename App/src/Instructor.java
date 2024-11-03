@@ -1,3 +1,4 @@
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,12 +7,14 @@ public class Instructor extends RegisteredUser{
     private List<String> cityAvailabilities;
     private List<Offering> offerings;
     private Schedule schedule;
+    Database db = new Database();
 
-    public Instructor(String name, String phoneNumber, String activityType, List<String> cityAvailabilities){
-        super(name, phoneNumber);
+    public Instructor(String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities) throws ClassNotFoundException, SQLException{
+        super(username, password, name, phoneNumber);
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
         this.schedule = new Schedule();
+        db.addInstructor(username, password, name, phoneNumber);
     }
 
     public void pickOffering(Offering offering){
