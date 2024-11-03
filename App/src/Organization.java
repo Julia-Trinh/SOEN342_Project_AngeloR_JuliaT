@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Organization {
+    private int id;
     private String name;
     private List<Offering> offerings;
     private List<Location> locations;
@@ -10,10 +11,14 @@ public class Organization {
 
     public Organization(String name) throws ClassNotFoundException, SQLException{
         this.name = name;
-        db.addOrganization(name);
+        id = db.addOrganization(name);
     }
 
-    public void createOffering(Lesson lesson, Location location){
+    public int getId(){
+        return id;
+    }
+
+    public void createOffering(Lesson lesson, Location location) throws ClassNotFoundException, SQLException{
         offerings.add(new Offering(lesson, location)); //create unassigned offering
     }
 

@@ -1,6 +1,7 @@
 import java.sql.SQLException;
 
 public class Guardian extends Client{
+    private int id;
     private String guardianName;
     private String relationshipWithYouth;
     Database db = new Database();
@@ -9,6 +10,10 @@ public class Guardian extends Client{
         super(username, password, name, phoneNumber, age);
         this.guardianName = guardianName;
         this.relationshipWithYouth = relationshipWithYouth;
-        db.addGuardian(username, password, name, phoneNumber, age);
+        id = db.addGuardian(username, password, name, phoneNumber, age);
+    }
+
+    public int getId(){
+        return id;
     }
 }

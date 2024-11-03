@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Instructor extends RegisteredUser{
+    private int id;
     private String activityType;
     private List<String> cityAvailabilities;
     private List<Offering> offerings;
@@ -14,7 +15,11 @@ public class Instructor extends RegisteredUser{
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
         this.schedule = new Schedule();
-        db.addInstructor(username, password, name, phoneNumber);
+        id = db.addInstructor(username, password, name, phoneNumber);
+    }
+
+    public int getID(){
+        return id;
     }
 
     public void pickOffering(Offering offering){
