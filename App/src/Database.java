@@ -31,7 +31,7 @@ public class Database {
         "password VARCHAR(255) NOT NULL, " +
         "name VARCHAR(255) NOT NULL, " + 
         "phoneNumber INTEGER NOT NULL, " +
-        "PRIMARY KEY(id AUTOINCREMENT)" +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_INSTRUCTOR = 
@@ -45,7 +45,7 @@ public class Database {
         "activityType VARCHAR(255), " +
         "cityAvailabilities VARCHAR(255), " +
         "scheduleId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT)" +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_CLIENT = 
@@ -58,7 +58,7 @@ public class Database {
         "phoneNumber INTEGER NOT NULL, " +
         "age INTEGER NOT NULL, " +
         "scheduleId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT)" +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_GUARDIAN = 
@@ -73,72 +73,79 @@ public class Database {
         "clientId INTEGER," +
         "guardianName VARCHAR(255), " + 
         "relationship VARCHAR(255), " +
-        "PRIMARY KEY(id AUTOINCREMENT)" +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_ORGANIZATION = 
         "CREATE TABLE " + TABLE_ORGANIZATION + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255) " + 
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "name VARCHAR(255), " + 
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_LESSON = 
         "CREATE TABLE " + TABLE_LESSON + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "activityType VARCHAR(255), " + 
-        "capacity INTEGER, " +
-        "timeslotId INTEGER" +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "activityType VARCHAR(255) NOT NULL, " + 
+        "capacity INTEGER NOT NULL, " +
+        "timeslotId INTEGER NOT NULL, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_LOCATION = 
         "CREATE TABLE " + TABLE_LOCATION + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "name VARCHAR(255), " +
-        "spaceType VARCHAR(255), " + 
-        "city VARCHAR(255), " +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "name VARCHAR(255) NOT NULL, " +
+        "spaceType VARCHAR(255) NOT NULL, " + 
+        "city VARCHAR(255) NOT NULL, " +
         "organizationId INTEGER, " +
-        "scheduleId INTEGER " +
+        "scheduleId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_OFFERING = 
         "CREATE TABLE " + TABLE_OFFERING + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "lessonId INTEGER, " + 
-        "locationId INTEGER, " +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "lessonId INTEGER NOT NULL, " + 
+        "locationId INTEGER NOT NULL, " +
         "instructorId INTEGER, " +
-        "isAvailableToPublic BOOLEAN " +
+        "isAvailableToPublic BOOLEAN NOT NULL, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_BOOKING = 
         "CREATE TABLE " + TABLE_BOOKING + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "clientId INTEGER, " + 
-        "offeringId INTEGER" +
+        "id INTEGER NOT NULL UNIQUE, " + 
+        "clientId INTEGER NOT NULL, " + 
+        "offeringId INTEGER NOT NULL, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_TIMESLOT = 
         "CREATE TABLE " + TABLE_TIMESLOT + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "startTime TEXT, " + 
-        "endTime TEXT, " +
-        "days TEXT, " +
-        "startDate TEXT, " +
-        "endDate TEXT," +
-        "ScheduleId INTEGER" +
+        "id INTEGER NOT NULL UNIQUE, " +  
+        "startTime TEXT NOT NULL, " + 
+        "endTime TEXT NOT NULL, " +
+        "days TEXT NOT NULL, " +
+        "startDate TEXT NOT NULL, " +
+        "endDate TEXT NOT NULL," +
+        "ScheduleId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     private static final String CREATE_TABLE_SCHEDULE = 
         "CREATE TABLE " + TABLE_SCHEDULE + 
         " ("+ 
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, " + 
-        "timeslotId INTEGER, " + 
-        "offeringId INTEGER" +
+        "id INTEGER NOT NULL UNIQUE, " +  
+        "timeslotIds TEXT, " + 
+        "offeringId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
 
     // Method to get the connection
@@ -204,7 +211,7 @@ public class Database {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber) VALUES (?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
@@ -217,7 +224,7 @@ public class Database {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber) VALUES (?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
@@ -250,6 +257,16 @@ public class Database {
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
         prep.setInt(5, age);
+        prep.execute();
+    }
+
+    public void addOrganization(String name) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Organization (name) VALUES (?);");
+        prep.setString(1, name);
         prep.execute();
     }
 }
