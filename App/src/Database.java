@@ -4,6 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 public class Database {
     private static Connection con;
@@ -34,6 +37,7 @@ public class Database {
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
+    // TO-DO: add city availabilities
     private static final String CREATE_TABLE_INSTRUCTOR = 
         "CREATE TABLE " + TABLE_INSTRUCTOR + 
         " ("+ 
@@ -101,7 +105,7 @@ public class Database {
         "name VARCHAR(255) NOT NULL, " +
         "spaceType VARCHAR(255) NOT NULL, " + 
         "city VARCHAR(255) NOT NULL, " +
-        "organizationId INTEGER, " +
+        "organizationId INTEGER NOT NULL, " +
         "scheduleId INTEGER, " +
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
@@ -121,7 +125,8 @@ public class Database {
         "CREATE TABLE " + TABLE_BOOKING + 
         " ("+ 
         "id INTEGER NOT NULL UNIQUE, " + 
-        "clientId INTEGER NOT NULL, " + 
+        "clientId INTEGER, " + 
+        "guardianId INTEGER, " + 
         "offeringId INTEGER NOT NULL, " +
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
@@ -144,7 +149,6 @@ public class Database {
         " ("+ 
         "id INTEGER NOT NULL UNIQUE, " +  
         "timeslotIds TEXT, " + 
-        "offeringId INTEGER, " +
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
 
@@ -205,8 +209,8 @@ public class Database {
         }
     }
 
-    // Add data to the database
-    public void addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+    // Add data to the database and return ID
+    public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
@@ -217,9 +221,19 @@ public class Database {
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
         prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
     }
 
-    public void addInstructor(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+    public int addInstructor(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
@@ -230,9 +244,19 @@ public class Database {
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
         prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
     }
 
-    public void addClient(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
+    public int addClient(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
@@ -244,9 +268,19 @@ public class Database {
         prep.setInt(4, phoneNumber);
         prep.setInt(5, age);
         prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
     }
 
-    public void addGuardian(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
+    public int addGuardian(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
@@ -258,9 +292,19 @@ public class Database {
         prep.setInt(4, phoneNumber);
         prep.setInt(5, age);
         prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
     }
 
-    public void addOrganization(String name) throws ClassNotFoundException, SQLException {
+    public int addOrganization(String name) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
@@ -268,5 +312,147 @@ public class Database {
         PreparedStatement prep = con.prepareStatement("INSERT INTO Organization (name) VALUES (?);");
         prep.setString(1, name);
         prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addTimeslot(String days, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (startTime, endTime, days, startDate, endDate) VALUES (?, ?, ?, ?, ?);");
+        prep.setString(1, startTime);
+        prep.setString(2, endTime);
+        prep.setString(3, days);
+        prep.setString(4, startDate);
+        prep.setString(5, endDate);
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addLesson(String activityType, int capacity, int timeslotId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Lesson (activityType, capacity, timeslotId) VALUES (?, ?, ?);");
+        prep.setString(1, activityType);
+        prep.setInt(2, capacity);
+        prep.setInt(3, timeslotId);
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addLocation(String name, String activityType, String city, int organizationId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Location (name, spaceType, city, organizationId) VALUES (?, ?, ?, ?);");
+        prep.setString(1, name);
+        prep.setString(2, activityType);
+        prep.setString(3, city);
+        prep.setInt(4, organizationId);
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addOffering(int lessonId, int locationId, boolean isAvailableToPublic) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Offering (lessonId, locationId, isAvailableToPublic) VALUES (?, ?, ?);");
+        prep.setInt(1, lessonId);
+        prep.setInt(2, locationId);
+        prep.setBoolean(3, isAvailableToPublic);
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addBooking(int clientId, int guardianId, int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Booking (clientId, guardianId, offeringId) VALUES (?, ?, ?);");
+        prep.setInt(1, clientId);
+        prep.setInt(2, guardianId);
+        prep.setInt(3, offeringId);
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
+    }
+
+    public int addSchedule() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Schedule DEFAULT VALUES;");
+        prep.execute();
+
+        // Retrieve the generated ID
+        int id = -1;
+        try (ResultSet rs = prep.getGeneratedKeys()) {
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        }
+
+        return id;
     }
 }

@@ -1,12 +1,16 @@
+import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Schedule {
+    private int id;
     private List<Timeslot> timeslots;
+    Database db = new Database();
 
-    public Schedule() {
+    public Schedule() throws ClassNotFoundException, SQLException {
         this.timeslots = new ArrayList<>();
+        id = db.addSchedule();
     }
 
     public void addTimeSlot(Timeslot timeslot) {
@@ -21,6 +25,10 @@ public class Schedule {
             System.out.println("Error: Timeslot conflicts with schedule. Timeslot not added to schedule.");
         }
         
+    }
+
+    public int getId(){
+        return id;
     }
 
     public List<Timeslot> getTimeSlots() {
