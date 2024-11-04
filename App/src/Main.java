@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
@@ -91,9 +92,9 @@ public class Main {
             key.close();
     }
 
-    public static void userRegistration(){
+    public static void userRegistration() throws ClassNotFoundException, SQLException {
         System.out.println("Please pick one of the following options:\n" + 
-                            "1. Register as Customer\n" +
+                            "1. Register as Client\n" +
                             "2. Register as Instructor\n" +
                             "3. Register as Admin" + 
                             "4. Return\n");
@@ -101,29 +102,97 @@ public class Main {
         Scanner key = new Scanner(System.in);
         int userOption = key.nextInt();
         
-            switch (userOption) {
-                case 1:
-                    // register as customer
-                    // option to register as a guardian
-                    break;
-                case 2:
-                    // register as instructor
-                    break;
-                case 3:
-                    // register as admin
-                    break;
-                case 4:
-                    break;
-        
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    break;
-            }
+        switch (userOption) {
+            case 1:
+                // register as client
+                System.out.print("Enter username: ");
+                String clientUsername = key.nextLine();
+                System.out.print("Enter password: ");
+                String clientPassword = key.nextLine();
+                System.out.print("Enter name: ");
+                String clientName = key.nextLine();
+                System.out.print("Enter phone number: ");
+                int clientPhoneNumber = key.nextInt();
+                System.out.print("Enter age: ");
+                int clientAge = key.nextInt();
+
+                if(clientAge < 18){// option to register as a guardian
+                    System.out.print("Client is under 18. Enter guardian information.\n");
+                    System.out.print("Enter guardian name: ");
+                    String guardianName = key.nextLine();
+                    System.out.print("Enter relationship with youth: ");
+                    String relationshipWithYouth = key.nextLine();
+                    Guardian guardian = new Guardian(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge, guardianName, relationshipWithYouth);
+                }
+                else{
+                    Client client = new Client(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge);
+                }
+
+                //add to database
+                System.out.println("Client user added to database.");
+                break;
+            case 2:
+                // register as instructor
+                System.out.print("Enter username: ");
+                String instructorUsername = key.nextLine();
+                System.out.print("Enter password: ");
+                String instructorPassword = key.nextLine();
+                System.out.print("Enter name: ");
+                String instructorName = key.nextLine();
+                System.out.print("Enter phone number: ");
+                int instructorPhoneNumber = key.nextInt();
+                System.out.print("Enter activity type: ");
+                String instructorActivityType = key.nextLine();
+                System.out.print("Enter city availabilities: ");
+                String instructorCityAvailabilities = key.nextLine();
+
+                Instructor instructor = new Instructor(instructorUsername, instructorPassword, instructorName, instructorPhoneNumber, instructorActivityType, convertStringToList(instructorCityAvailabilities));
+                
+
+                //add to database
+                System.out.println("Instructor user added to database.");
+                break;
+            case 3:
+                // register as admin
+
+                System.out.print("Enter username: ");
+                String adminUsername = key.nextLine();
+                System.out.print("Enter password: ");
+                String adminPassword = key.nextLine();
+                System.out.print("Enter name: ");
+                String adminName = key.nextLine();
+                System.out.print("Enter phone number: ");
+                int adminPhoneNumber = key.nextInt();
+                System.out.print("Enter organization: ");   //idk if we should add this
+                String adminOrganization = key.nextLine();
+
+                Administrator admin = new Administrator(adminUsername, adminPassword, adminName, adminPhoneNumber, new Organization(adminOrganization));
+
+                //add to database
+                System.out.println("Admin user added to database.");
+                break;
+
+            default:
+                System.out.println("Invalid option. Please try again.");
+                break;
+        }
+        System.out.println("Now returning to main menu.");
+        System.out.println("Press Enter to continue...");
+        key.nextLine();  
         
         key.close();
     }
 
     public static void browsableOfferings(){
         // TO-DO: output list of offerings
+    }
+
+    public static List<String> convertStringToList(String str){
+        List<String> list = new ArrayList<String>();
+        String[] arr = str.split(",");
+        for (String s : arr){
+            list.add(s);
+        }
+        return list;
     }
 }
