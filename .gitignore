@@ -1,0 +1,10 @@
+# Ignore VS Code-specific files
+/.vscode/
+
+# Ignore Eclipse-specific files
+/.classpath
+/.project
+/.settings/
+
+# Ignore class files
+*.class
