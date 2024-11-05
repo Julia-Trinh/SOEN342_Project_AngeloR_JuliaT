@@ -19,7 +19,7 @@ public class Location {
         this.schedule = new Schedule();
         this.organization = organization;
 
-        id = db.addLocation(name, activityType, city, organization.getId());
+        id = db.addLocation(name, activityType, city, organization.getId(), schedule.getId());
     }
 
     public void addOffering(Offering offering){

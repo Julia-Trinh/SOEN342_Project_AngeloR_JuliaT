@@ -55,9 +55,9 @@ public class Timeslot {
         return schedule;
     }
 
-    public void setSchedule(Schedule schedule) {
+    public void setSchedule(Schedule schedule) throws ClassNotFoundException, SQLException {
         this.schedule = schedule;
-        // TO-DO: add in db
+        db.setScheduleToTimeslot(schedule.getId());
     }
 
     public boolean isTimeslotOverlapping(Timeslot newTimeslot){
