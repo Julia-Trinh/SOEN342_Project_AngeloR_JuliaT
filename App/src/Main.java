@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Database db = new Database();
+        Database db = Database.getInstance();
         try {
             db.getConnection();
             // Timeslot ts = new Timeslot(List.of("Tuesdays", "Wednesdays"), LocalTime.of(13, 0), LocalTime.of(15, 0), LocalDate.of(2024, 11, 1), LocalDate.of(2024, 12, 1));

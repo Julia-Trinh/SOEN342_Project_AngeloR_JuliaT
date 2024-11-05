@@ -7,7 +7,7 @@ public class Organization {
     private String name;
     private List<Offering> offerings;
     private List<Location> locations;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Organization(String name) throws ClassNotFoundException, SQLException{
         this.name = name;

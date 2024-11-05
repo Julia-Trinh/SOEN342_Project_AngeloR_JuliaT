@@ -7,7 +7,7 @@ public class Schedule {
     // Can also use query SELECT * FROM Timeslot WHERE scheduleId = ___;
     private int id;
     private List<Timeslot> timeslots;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Schedule() throws ClassNotFoundException, SQLException {
         id = db.addSchedule();

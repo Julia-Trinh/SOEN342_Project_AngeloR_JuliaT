@@ -8,7 +8,7 @@ public class Instructor extends RegisteredUser{
     private List<String> cityAvailabilities;
     private List<Offering> offerings; // To get from database: SELECT * FROM Offering WHERE instructorId = __;
     private Schedule schedule;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Instructor(String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities) throws ClassNotFoundException, SQLException{
         super(username, password, name, phoneNumber);

@@ -10,7 +10,7 @@ public class Location {
     private Schedule schedule;
     private List<Offering> offerings;
     private Organization organization;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Location(String name, String activityType, String city, Organization organization) throws ClassNotFoundException, SQLException {
         this.name = name;

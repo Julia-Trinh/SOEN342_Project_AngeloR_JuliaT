@@ -14,7 +14,7 @@ public class Timeslot {
     private Schedule schedule;
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException {
         this.days = days;

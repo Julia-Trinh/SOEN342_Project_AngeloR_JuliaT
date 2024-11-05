@@ -8,7 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+// Singleton
 public class Database {
+    private static Database instance = null;
     private static Connection con;
     private static boolean hasData = false;
 
@@ -23,6 +25,16 @@ public class Database {
     private static final String TABLE_BOOKING = "Booking";
     private static final String TABLE_TIMESLOT = "Timeslot";
     private static final String TABLE_SCHEDULE = "Schedule";
+
+    private Database(){
+    }
+
+    public static Database getInstance(){
+        if (instance == null){
+            instance = new Database();
+        }
+        return instance;
+    }
 
     // SQL creation statements
         private static final String CREATE_TABLE_ADMINISTRATOR = 
@@ -154,12 +166,7 @@ public class Database {
     // Method to get the connection
     public void getConnection() throws ClassNotFoundException, SQLException {
         if (con == null || con.isClosed()) {
-            // Class.forName("org.sqlite.JDBC");
-
             con = DriverManager.getConnection("jdbc:sqlite:database.db");
-
-            // con = DriverManager.getConnection("./database.db");
-
 
             if (!hasData) {
                 initialize();
