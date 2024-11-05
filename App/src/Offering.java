@@ -9,7 +9,7 @@ public class Offering {
     private Lesson lesson;
     private Location location;
     private List<Booking> bookings;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Offering(Lesson lesson, Location location) throws ClassNotFoundException, SQLException {
         this.lesson = lesson;
@@ -23,10 +23,11 @@ public class Offering {
         id = db.addOffering(lesson.getId(), location.getId(), isAvailableToPublic);
     }
 
-    public void assignOffering(Instructor instructor){
+    public void assignOffering(Instructor instructor) throws ClassNotFoundException, SQLException{
         this.assignedInstructor = instructor;
         this.isAvailableToPublic = true;
-        // TO-DO: move catalog and db
+        db.assignOffering(instructor.getId());
+        // TO-DO: move catalog
     }
 
     public void addBooking(Booking booking){

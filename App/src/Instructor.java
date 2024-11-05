@@ -6,23 +6,23 @@ public class Instructor extends RegisteredUser{
     private int id;
     private String activityType;
     private List<String> cityAvailabilities;
-    private List<Offering> offerings;
+    private List<Offering> offerings; // To get from database: SELECT * FROM Offering WHERE instructorId = __;
     private Schedule schedule;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Instructor(String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities) throws ClassNotFoundException, SQLException{
         super(username, password, name, phoneNumber);
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
         this.schedule = new Schedule();
-        id = db.addInstructor(username, password, name, phoneNumber);
+        id = db.addInstructor(username, password, name, phoneNumber, this.schedule.getId());
     }
 
-    public int getID(){
+    public int getId(){
         return id;
     }
 
-    public void pickOffering(Offering offering){
+    public void pickOffering(Offering offering) throws ClassNotFoundException, SQLException{
         if (schedule.isAvailableTimeslot(offering.getLessonTimeslot()) && cityAvailabilities.contains(offering.geLocation().getCity())){
             offerings.add(offering);
             offering.assignOffering(this);
@@ -32,7 +32,7 @@ public class Instructor extends RegisteredUser{
         }
     }
 
-    public void addTimeSlot(Timeslot timeslot){
+    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException{
         if (schedule.isAvailableTimeslot(timeslot)) {
             schedule.addTimeSlot(timeslot);
         }

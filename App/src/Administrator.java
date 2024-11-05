@@ -6,12 +6,12 @@ import java.util.List;
 public class Administrator extends RegisteredUser{
     private int id;
     private Organization organization;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Administrator(String username, String password, String name, int phoneNumber, Organization organization) throws ClassNotFoundException, SQLException{
         super(username, password, name, phoneNumber);
         this.organization = organization;
-        id = db.addAdmin(username, password, name, phoneNumber);
+        id = db.addAdmin(username, password, name, phoneNumber, organization.getId());
     }
 
     public int getId(){

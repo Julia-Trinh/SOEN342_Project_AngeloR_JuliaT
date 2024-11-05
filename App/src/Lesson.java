@@ -8,7 +8,7 @@ public class Lesson {
     private int capacity;
     private Timeslot timeslot;
     private List<Offering> offerings;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Lesson(String activityType, int capacity, Timeslot timeslot) throws ClassNotFoundException, SQLException {
         this.activityType = activityType;

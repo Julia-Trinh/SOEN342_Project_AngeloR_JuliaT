@@ -4,22 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Schedule {
+    // Can also use query SELECT * FROM Timeslot WHERE scheduleId = ___;
     private int id;
     private List<Timeslot> timeslots;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Schedule() throws ClassNotFoundException, SQLException {
-        this.timeslots = new ArrayList<>();
         id = db.addSchedule();
     }
 
-    public void addTimeSlot(Timeslot timeslot) {
+    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException {
         //need to check if timeslot fits in schedule
         //add timeslot if valid
         if(isAvailableTimeslot(timeslot)){
             timeslots.add(timeslot);
             timeslot.setSchedule(this);
-            // TO-DO: add to db, convert the list of all timeslot ids into a string seperated by commas
         }
         else{
             System.out.println("Error: Timeslot conflicts with schedule. Timeslot not added to schedule.");

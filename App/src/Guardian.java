@@ -4,13 +4,15 @@ public class Guardian extends Client{
     private int id;
     private String guardianName;
     private String relationshipWithYouth;
-    Database db = new Database();
+    private int guardianAge;
+    Database db = Database.getInstance();
 
-    public Guardian(String username, String password, String name, int phoneNumber, int age, String guardianName, String relationshipWithYouth) throws ClassNotFoundException, SQLException{
-        super(username, password, name, phoneNumber, age);
+    public Guardian(String username, String password, String youthName, int phoneNumber, int age, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException{
+        super(username, password, youthName, phoneNumber, age);
         this.guardianName = guardianName;
         this.relationshipWithYouth = relationshipWithYouth;
-        id = db.addGuardian(username, password, name, phoneNumber, age);
+        this.guardianAge = guardianAge;
+        id = db.addClient(username, password, youthName, phoneNumber, age, this.schedule.getId(), true, guardianName, relationshipWithYouth, guardianAge);
     }
 
     public int getId(){

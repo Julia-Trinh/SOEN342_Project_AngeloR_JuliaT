@@ -5,7 +5,7 @@ public class Booking {
     private BookingDetails bookingDetails;
     private Client client;
     private Offering offering;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Booking(Client client, Offering offering) throws ClassNotFoundException, SQLException {
         this.client = client;
@@ -19,9 +19,7 @@ public class Booking {
         // Check if lesson is full
         if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
 
-        // Check if the client is a guardian
-        if (client.getClass() == Client.class) id = db.addBooking(client.getId(), -1, offering.getId());
-        else if (client.getClass() == Guardian.class) id = db.addBooking(-1, client.getId(), offering.getId());
+        id = db.addBooking(client.getId(), offering.getId());
     }
 
     public int getId(){

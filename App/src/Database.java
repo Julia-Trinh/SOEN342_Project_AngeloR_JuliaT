@@ -8,7 +8,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+// Singleton
 public class Database {
+    private static Database instance = null;
     private static Connection con;
     private static boolean hasData = false;
 
@@ -16,7 +18,6 @@ public class Database {
     private static final String TABLE_ADMINISTRATOR = "Administrator";
     private static final String TABLE_INSTRUCTOR = "Instructor";
     private static final String TABLE_CLIENT = "Client";
-    private static final String TABLE_GUARDIAN = "Guardian";
     private static final String TABLE_ORGANIZATION = "Organization";
     private static final String TABLE_LESSON = "Lesson";
     private static final String TABLE_LOCATION = "Location";
@@ -24,6 +25,16 @@ public class Database {
     private static final String TABLE_BOOKING = "Booking";
     private static final String TABLE_TIMESLOT = "Timeslot";
     private static final String TABLE_SCHEDULE = "Schedule";
+
+    private Database(){
+    }
+
+    public static Database getInstance(){
+        if (instance == null){
+            instance = new Database();
+        }
+        return instance;
+    }
 
     // SQL creation statements
         private static final String CREATE_TABLE_ADMINISTRATOR = 
@@ -34,7 +45,9 @@ public class Database {
         "password VARCHAR(255) NOT NULL, " +
         "name VARCHAR(255) NOT NULL, " + 
         "phoneNumber INTEGER NOT NULL, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "organizationId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(organizationId) REFERENCES Organization(id)" +
         ")";
     
     // TO-DO: add city availabilities
@@ -50,6 +63,7 @@ public class Database {
         "cityAvailabilities VARCHAR(255), " +
         "scheduleId INTEGER, " +
         "PRIMARY KEY(id AUTOINCREMENT) " +
+        "FOREIGN KEY(scheduleId) REFERENCES Schedule(id)" +
         ")";
     
     private static final String CREATE_TABLE_CLIENT = 
@@ -62,22 +76,12 @@ public class Database {
         "phoneNumber INTEGER NOT NULL, " +
         "age INTEGER NOT NULL, " +
         "scheduleId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
-        ")";
-    
-    private static final String CREATE_TABLE_GUARDIAN = 
-        "CREATE TABLE " + TABLE_GUARDIAN + 
-        " ("+ 
-        "id INTEGER NOT NULL UNIQUE, " + 
-        "username VARCHAR(255) NOT NULL, " +
-        "password VARCHAR(255) NOT NULL, " +
-        "name VARCHAR(255) NOT NULL, " + 
-        "phoneNumber INTEGER NOT NULL, " +
-        "age INTEGER NOT NULL, " +
-        "clientId INTEGER," +
-        "guardianName VARCHAR(255), " + 
-        "relationship VARCHAR(255), " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "isGuardian BOOLEAN NOT NULL, " +
+        "guardianName VARCHAR(255), " +
+        "relationshipWithYouth VARCHAR(255), " +
+        "guardianAge INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(scheduleId) REFERENCES Schedule(id)" +
         ")";
     
     private static final String CREATE_TABLE_ORGANIZATION = 
@@ -95,7 +99,8 @@ public class Database {
         "activityType VARCHAR(255) NOT NULL, " + 
         "capacity INTEGER NOT NULL, " +
         "timeslotId INTEGER NOT NULL, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(timeslotId) REFERENCES Timeslot(id) " +
         ")";
     
     private static final String CREATE_TABLE_LOCATION = 
@@ -107,7 +112,9 @@ public class Database {
         "city VARCHAR(255) NOT NULL, " +
         "organizationId INTEGER NOT NULL, " +
         "scheduleId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(scheduleId) REFERENCES Schedule(id), " +
+        "FOREIGN KEY(organizationId) REFERENCES Organization(id)" +
         ")";
     
     private static final String CREATE_TABLE_OFFERING = 
@@ -118,17 +125,21 @@ public class Database {
         "locationId INTEGER NOT NULL, " +
         "instructorId INTEGER, " +
         "isAvailableToPublic BOOLEAN NOT NULL, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(instructorId) REFERENCES Instructor(id), " +
+        "FOREIGN KEY(lessonId) REFERENCES Lesson(id), " +
+        "FOREIGN KEY(locationId) REFERENCES Location(id)" +
         ")";
     
     private static final String CREATE_TABLE_BOOKING = 
         "CREATE TABLE " + TABLE_BOOKING + 
         " ("+ 
         "id INTEGER NOT NULL UNIQUE, " + 
-        "clientId INTEGER, " + 
-        "guardianId INTEGER, " + 
+        "clientId INTEGER NOT NULL, " + 
         "offeringId INTEGER NOT NULL, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(clientId) REFERENCES Client(id), " +
+        "FOREIGN KEY(offeringId) REFERENCES Offering(id)" +
         ")";
     
     private static final String CREATE_TABLE_TIMESLOT = 
@@ -140,27 +151,22 @@ public class Database {
         "days TEXT NOT NULL, " +
         "startDate TEXT NOT NULL, " +
         "endDate TEXT NOT NULL," +
-        "ScheduleId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT) " +
+        "scheduleId INTEGER, " +
+        "PRIMARY KEY(id AUTOINCREMENT), " +
+        "FOREIGN KEY(ScheduleId) REFERENCES Schedule(id)" +
         ")";
     
     private static final String CREATE_TABLE_SCHEDULE = 
         "CREATE TABLE " + TABLE_SCHEDULE + 
         " ("+ 
         "id INTEGER NOT NULL UNIQUE, " +  
-        "timeslotIds TEXT, " + 
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
 
     // Method to get the connection
     public void getConnection() throws ClassNotFoundException, SQLException {
         if (con == null || con.isClosed()) {
-            // Class.forName("org.sqlite.JDBC");
-
-            con = DriverManager.getConnection("jdbc:sqlite:../database.db");
-
-            // con = DriverManager.getConnection("./database.db");
-
+            con = DriverManager.getConnection("jdbc:sqlite:database.db");
 
             if (!hasData) {
                 initialize();
@@ -179,7 +185,6 @@ public class Database {
             createTableIfNotExists(state, TABLE_ADMINISTRATOR, CREATE_TABLE_ADMINISTRATOR);
             createTableIfNotExists(state, TABLE_INSTRUCTOR, CREATE_TABLE_INSTRUCTOR);
             createTableIfNotExists(state, TABLE_CLIENT, CREATE_TABLE_CLIENT);
-            createTableIfNotExists(state, TABLE_GUARDIAN, CREATE_TABLE_GUARDIAN);
             createTableIfNotExists(state, TABLE_ORGANIZATION, CREATE_TABLE_ORGANIZATION);
             createTableIfNotExists(state, TABLE_LESSON, CREATE_TABLE_LESSON);
             createTableIfNotExists(state, TABLE_LOCATION, CREATE_TABLE_LOCATION);
@@ -215,16 +220,17 @@ public class Database {
     }
 
     // Add data to the database and return ID
-    public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+    public int addAdmin(String username, String password, String name, int phoneNumber, int organizationId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber) VALUES (?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber, organizationId) VALUES (?, ?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
+        prep.setInt(5, organizationId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -238,16 +244,17 @@ public class Database {
         return id;
     }
 
-    public int addInstructor(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+    public int addInstructor(String username, String password, String name, int phoneNumber, int scheduleId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber) VALUES (?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber, scheduleId) VALUES (?, ?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
+        prep.setInt(5, scheduleId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -261,41 +268,22 @@ public class Database {
         return id;
     }
 
-    public int addClient(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
+    public int addClient(String username, String password, String name, int phoneNumber, int age, int scheduleId, boolean isGuardian, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Client (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Client (username, password, name, phoneNumber, age, scheduleId, isGuardian, guardianName, relationshipWithYouth, guardianAge) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
         prep.setInt(5, age);
-        prep.execute();
-
-        // Retrieve the generated ID
-        int id = -1;
-        try (ResultSet rs = prep.getGeneratedKeys()) {
-            if (rs.next()) {
-                id = rs.getInt(1);
-            }
-        }
-
-        return id;
-    }
-
-    public int addGuardian(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException {
-        if (con == null) {
-            getConnection();
-        }
-    
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Guardian (username, password, name, phoneNumber, age) VALUES (?, ?, ?, ?, ?);");
-        prep.setString(1, username);
-        prep.setString(2, password);
-        prep.setString(3, name);
-        prep.setInt(4, phoneNumber);
-        prep.setInt(5, age);
+        prep.setInt(6, scheduleId);
+        prep.setBoolean(7, isGuardian);
+        prep.setString(8, guardianName);
+        prep.setString(9, relationshipWithYouth);
+        prep.setInt(10, guardianAge);
         prep.execute();
 
         // Retrieve the generated ID
@@ -375,16 +363,17 @@ public class Database {
         return id;
     }
 
-    public int addLocation(String name, String activityType, String city, int organizationId) throws ClassNotFoundException, SQLException {
+    public int addLocation(String name, String activityType, String city, int organizationId, int scheduleId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Location (name, spaceType, city, organizationId) VALUES (?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Location (name, spaceType, city, organizationId, scheduleId) VALUES (?, ?, ?, ?, ?);");
         prep.setString(1, name);
         prep.setString(2, activityType);
         prep.setString(3, city);
         prep.setInt(4, organizationId);
+        prep.setInt(5, scheduleId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -420,15 +409,14 @@ public class Database {
         return id;
     }
 
-    public int addBooking(int clientId, int guardianId, int offeringId) throws ClassNotFoundException, SQLException {
+    public int addBooking(int clientId, int offeringId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Booking (clientId, guardianId, offeringId) VALUES (?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Booking (clientId, offeringId) VALUES (?, ?);");
         prep.setInt(1, clientId);
-        prep.setInt(2, guardianId);
-        prep.setInt(3, offeringId);
+        prep.setInt(2, offeringId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -459,5 +447,26 @@ public class Database {
         }
 
         return id;
+    }
+
+    public void setScheduleToTimeslot(int scheduleId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (scheduleId) VALUES (?);");
+        prep.setInt(1, scheduleId);
+        prep.execute();
+    }
+
+    public void assignOffering(int instructorId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Offering (instructorId, isAvailableToPublic) VALUES (?, ?);");
+        prep.setInt(1, instructorId);
+        prep.setBoolean(2, true);
+        prep.execute();
     }
 }

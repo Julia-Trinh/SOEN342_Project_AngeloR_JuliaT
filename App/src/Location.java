@@ -10,7 +10,7 @@ public class Location {
     private Schedule schedule;
     private List<Offering> offerings;
     private Organization organization;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Location(String name, String activityType, String city, Organization organization) throws ClassNotFoundException, SQLException {
         this.name = name;
@@ -19,7 +19,7 @@ public class Location {
         this.schedule = new Schedule();
         this.organization = organization;
 
-        id = db.addLocation(name, activityType, city, organization.getId());
+        id = db.addLocation(name, activityType, city, organization.getId(), schedule.getId());
     }
 
     public void addOffering(Offering offering){
