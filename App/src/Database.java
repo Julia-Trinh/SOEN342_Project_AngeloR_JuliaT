@@ -157,7 +157,7 @@ public class Database {
         if (con == null || con.isClosed()) {
             // Class.forName("org.sqlite.JDBC");
 
-            con = DriverManager.getConnection("jdbc:sqlite:database.db");
+            con = DriverManager.getConnection("jdbc:sqlite:../database.db");
 
             // con = DriverManager.getConnection("./database.db");
 
