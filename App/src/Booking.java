@@ -19,9 +19,7 @@ public class Booking {
         // Check if lesson is full
         if (offering.getBookings().size() == offering.getLesson().getCapacity()) offering.setIsAvailableToPublic(false);
 
-        // Check if the client is a guardian
-        if (client.getClass() == Client.class) id = db.addBooking(client.getId(), -1, offering.getId());
-        else if (client.getClass() == Guardian.class) id = db.addBooking(-1, client.getId(), offering.getId());
+        id = db.addBooking(client.getId(), offering.getId());
     }
 
     public int getId(){
