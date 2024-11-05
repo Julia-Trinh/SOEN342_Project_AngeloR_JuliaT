@@ -155,8 +155,13 @@ public class Database {
     // Method to get the connection
     public void getConnection() throws ClassNotFoundException, SQLException {
         if (con == null || con.isClosed()) {
-            Class.forName("org.sqlite.JDBC");
+            // Class.forName("org.sqlite.JDBC");
+
             con = DriverManager.getConnection("jdbc:sqlite:database.db");
+
+            // con = DriverManager.getConnection("./database.db");
+
+
             if (!hasData) {
                 initialize();
             }
