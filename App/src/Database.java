@@ -16,7 +16,6 @@ public class Database {
     private static final String TABLE_ADMINISTRATOR = "Administrator";
     private static final String TABLE_INSTRUCTOR = "Instructor";
     private static final String TABLE_CLIENT = "Client";
-    private static final String TABLE_GUARDIAN = "Guardian";
     private static final String TABLE_ORGANIZATION = "Organization";
     private static final String TABLE_LESSON = "Lesson";
     private static final String TABLE_LOCATION = "Location";
@@ -34,6 +33,7 @@ public class Database {
         "password VARCHAR(255) NOT NULL, " +
         "name VARCHAR(255) NOT NULL, " + 
         "phoneNumber INTEGER NOT NULL, " +
+        "organizationId INTEGER, " +
         "PRIMARY KEY(id AUTOINCREMENT), " +
         "FOREIGN KEY(organizationId) REFERENCES Organization(id)" +
         ")";
@@ -88,7 +88,7 @@ public class Database {
         "capacity INTEGER NOT NULL, " +
         "timeslotId INTEGER NOT NULL, " +
         "PRIMARY KEY(id AUTOINCREMENT), " +
-        "FOREIGN KEY(timeslotId) REFERENCES Timeslot(id), " +
+        "FOREIGN KEY(timeslotId) REFERENCES Timeslot(id) " +
         ")";
     
     private static final String CREATE_TABLE_LOCATION = 
@@ -101,7 +101,8 @@ public class Database {
         "organizationId INTEGER NOT NULL, " +
         "scheduleId INTEGER, " +
         "PRIMARY KEY(id AUTOINCREMENT), " +
-        "FOREIGN KEY(scheduleId) REFERENCES Schedule(id)" +
+        "FOREIGN KEY(scheduleId) REFERENCES Schedule(id), " +
+        "FOREIGN KEY(organizationId) REFERENCES Organization(id)" +
         ")";
     
     private static final String CREATE_TABLE_OFFERING = 
