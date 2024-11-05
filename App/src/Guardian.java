@@ -5,7 +5,7 @@ public class Guardian extends Client{
     private String guardianName;
     private String relationshipWithYouth;
     private int guardianAge;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Guardian(String username, String password, String youthName, int phoneNumber, int age, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException{
         super(username, password, youthName, phoneNumber, age);

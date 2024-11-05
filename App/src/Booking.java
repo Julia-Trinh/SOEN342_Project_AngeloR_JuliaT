@@ -5,7 +5,7 @@ public class Booking {
     private BookingDetails bookingDetails;
     private Client client;
     private Offering offering;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Booking(Client client, Offering offering) throws ClassNotFoundException, SQLException {
         this.client = client;

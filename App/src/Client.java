@@ -7,7 +7,7 @@ public class Client extends RegisteredUser{
     private int age;
     private List<Booking> bookings;
     protected Schedule schedule;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Client(String username, String password, String name, int phoneNumber, int age) throws ClassNotFoundException, SQLException{
         super(username, password, name, phoneNumber);

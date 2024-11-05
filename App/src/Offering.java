@@ -9,7 +9,7 @@ public class Offering {
     private Lesson lesson;
     private Location location;
     private List<Booking> bookings;
-    Database db = new Database();
+    Database db = Database.getInstance();
 
     public Offering(Lesson lesson, Location location) throws ClassNotFoundException, SQLException {
         this.lesson = lesson;
