@@ -187,6 +187,26 @@ public class Main {
         // TO-DO: output list of offerings
     }
 
+    public static void addUserToDatabase(int userType, RegisteredUser user){
+        // TO-DO: add user to database
+        Database db = new Database();
+        try {
+            db.getConnection();
+
+            if(userType == 1){
+                //db.addClient()
+            }
+            else if(userType == 2){
+                //db.addInstructor()
+            }
+            else if(userType == 3){
+                //db.addAdmin()
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }   
+
     public static List<String> convertStringToList(String str){
         List<String> list = new ArrayList<String>();
         String[] arr = str.split(",");
