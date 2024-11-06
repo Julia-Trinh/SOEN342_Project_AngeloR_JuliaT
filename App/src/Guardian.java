@@ -18,4 +18,8 @@ public class Guardian extends Client{
     public int getId(){
         return id;
     }
+
+    public String getGuardianName(){
+        return this.guardianName;
+    }
 }

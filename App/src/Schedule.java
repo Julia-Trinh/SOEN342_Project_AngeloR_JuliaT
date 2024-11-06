@@ -6,11 +6,17 @@ import java.util.List;
 public class Schedule {
     // Can also use query SELECT * FROM Timeslot WHERE scheduleId = ___;
     private int id;
-    private List<Timeslot> timeslots;
+    private List<Timeslot> timeslots = new ArrayList<>();
     Database db = Database.getInstance();
 
     public Schedule() throws ClassNotFoundException, SQLException {
-        id = db.addSchedule();
+        this.id = db.addSchedule();
+    }
+
+    // If retrieved from db
+    public Schedule(int id, List<Timeslot> timeslots){
+        this.id = id;
+        this.timeslots = timeslots;
     }
 
     public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException {

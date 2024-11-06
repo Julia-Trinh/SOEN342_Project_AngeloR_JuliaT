@@ -8,26 +8,22 @@ public class Offering {
     private Instructor assignedInstructor;
     private Lesson lesson;
     private Location location;
+    private Timeslot timeslot;
     private List<Booking> bookings;
     Database db = Database.getInstance();
 
-    public Offering(Lesson lesson, Location location) throws ClassNotFoundException, SQLException {
+    public Offering(Lesson lesson, Location location, Timeslot timeslot) throws ClassNotFoundException, SQLException {
         this.lesson = lesson;
         this.location = location;
+        this.timeslot = timeslot;
         this.isAvailableToPublic = false;
-
-        // Add Lesson timeslot in Location schedule
-        // TO-DO: make sure that before creating an offering to check if timeslots are overlapping first
-        location.getSchedule().addTimeSlot(lesson.getTimeslot());
-
-        id = db.addOffering(lesson.getId(), location.getId(), isAvailableToPublic);
+        id = db.addOffering(lesson.getId(), location.getId(), timeslot.getId(), isAvailableToPublic);
     }
 
     public void assignOffering(Instructor instructor) throws ClassNotFoundException, SQLException{
         this.assignedInstructor = instructor;
         this.isAvailableToPublic = true;
         db.assignOffering(instructor.getId());
-        // TO-DO: move catalog
     }
 
     public void addBooking(Booking booking){
@@ -46,10 +42,6 @@ public class Offering {
         return lesson;
     }
 
-    public Timeslot getLessonTimeslot(){
-        return lesson.getTimeslot();
-    }
-
     public boolean getIsAvailableToPublic(){
         return isAvailableToPublic;
     }
@@ -59,7 +51,11 @@ public class Offering {
         // TO-DO: change in db
     }
 
-    public Location geLocation(){
+    public Location getLocation(){
         return location;
+    }
+
+    public Timeslot getTimeslot(){
+        return timeslot;
     }
 }
