@@ -61,6 +61,7 @@ public class Database {
         "activityType VARCHAR(255), " +
         "cityAvailabilities VARCHAR(255), " +
         "scheduleId INTEGER, " +
+        "cityAvailabilities VARCHAR(255), " +
         "PRIMARY KEY(id AUTOINCREMENT) " +
         "FOREIGN KEY(scheduleId) REFERENCES Schedule(id)" +
         ")";
@@ -243,17 +244,19 @@ public class Database {
         return id;
     }
 
-    public int addInstructor(String username, String password, String name, int phoneNumber, int scheduleId) throws ClassNotFoundException, SQLException {
+    public int addInstructor(String username, String password, String name, int phoneNumber, int scheduleId, String cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber, scheduleId) VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Instructor (username, password, name, phoneNumber, scheduleId, cityAvailabilities, activityType) VALUES (?, ?, ?, ?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
         prep.setInt(5, scheduleId);
+        prep.setString(6, cityAvailabilities);
+        prep.setString(7, activityType);
         prep.execute();
 
         // Retrieve the generated ID

@@ -1,8 +1,8 @@
 public class RegisteredUser {
-    private String username;
-    private String password;
-    private String name;
-    private int phoneNumber;
+    protected String username;
+    protected String password;
+    protected String name;
+    protected int phoneNumber;
 
     public RegisteredUser(String username, String password, String name, int phoneNumber){
         this.username = username;

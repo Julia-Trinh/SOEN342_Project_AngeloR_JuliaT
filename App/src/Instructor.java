@@ -1,5 +1,4 @@
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Instructor extends RegisteredUser{
@@ -15,7 +14,7 @@ public class Instructor extends RegisteredUser{
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
         this.schedule = new Schedule();
-        id = db.addInstructor(username, password, name, phoneNumber, this.schedule.getId());
+        id = db.addInstructor(username, password, name, phoneNumber, this.schedule.getId(), convertListToString(cityAvailabilities), activityType);
     }
 
     public int getId(){
@@ -39,5 +38,16 @@ public class Instructor extends RegisteredUser{
         else {
             System.out.println("Error: Unable to add timeslot. Conflicting schedule detected.");
         }
+    }
+
+    public String convertListToString(List<String> list) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            result.append(list.get(i));
+            if (i < list.size() - 1) {
+                result.append(", ");
+            }
+        }
+        return result.toString();
     }
 }
