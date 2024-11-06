@@ -11,8 +11,9 @@ import java.util.Scanner;
 public class Main {
     static Database db = Database.getInstance();
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-    static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-    static RegisteredUser loggedUser = null;
+    static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+    //static RegisteredUser loggedUser = null;
+    static RegisteredUser loggedUser = new Administrator(1, "bla", "123", "bla", 514);
 
     public static void main(String[] args) {
 
@@ -171,29 +172,32 @@ public class Main {
     }
 
     public static void addOffering() throws ClassNotFoundException, SQLException {
-        ResultSet rs1 = db.displayLocations();
-        ResultSet rs2 = db.displayLessons();
         Scanner key = new Scanner(System.in);
 
         // Let Admin create a new or select an existing location
         System.out.println(
                 "Please pick an existing location by entering their ID or add a new location by entering \"0\"");
         System.out.println("0. Add a new location.");
+        ResultSet rs1 = db.displayLocations();
         while (rs1.next()) {
             System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers " + rs1.getString("spaceType")
                     + " classes in " + rs1.getString("city") + ".");
         }
         int userInput = key.nextInt();
+        key.nextLine(); // To finish the line of nextInt
 
         // Create a new location
         Location location;
         if (userInput == 0) {
             System.out.println("Please enter the name of the location: ");
             String name = key.nextLine();
+
             System.out.println("Please enter the activity type of the location: ");
             String activityType = key.nextLine();
+
             System.out.println("Please enter the city of the location: ");
             String city = key.nextLine();
+
             System.out.println("Please enter the name of the organization of the location: ");
             String organizationName = key.nextLine();
 
@@ -215,15 +219,25 @@ public class Main {
         while (timeslot == null){
             System.out.println(
                     "Please enter the number of days separated by commas (e.g. Mondays,Tuesdays,Wednesdays) that the activity will take place in this location: ");
-            List<String> days = Arrays.asList(key.nextLine().split(","));
+            String dayString = key.nextLine();
+            List<String> days = Arrays.asList(dayString.split(","));
+
             System.out.println("Please enter the start time of the activity in this format \"HH:mm\": ");
-            LocalTime startTime = LocalTime.parse(key.nextLine(), timeFormatter);
+            String startTimeString = key.nextLine();
+            LocalTime startTime = LocalTime.parse(startTimeString, timeFormatter);
+
             System.out.println("Please enter the end time of the activity in this format \"HH:mm\": ");
-            LocalTime endTime = LocalTime.parse(key.nextLine(), timeFormatter);
-            System.out.println("Please enter the start date of the activity in this format \"MMMM dd, yyyy\": ");
-            LocalDate startDate = LocalDate.parse(key.nextLine(), dateFormatter);
-            System.out.println("Please enter the end date of the activity in this format \"MMMM dd, yyyy\": ");
-            LocalDate endDate = LocalDate.parse(key.nextLine(), dateFormatter);
+            String endTimeString = key.nextLine();
+            LocalTime endTime = LocalTime.parse(endTimeString, timeFormatter);
+
+            System.out.println("Please enter the start date of the activity in this format \"MMMM d, yyyy\": ");
+            String startDateString = key.nextLine();
+            LocalDate startDate = LocalDate.parse(startDateString, dateFormatter);
+
+            System.out.println("Please enter the end date of the activity in this format \"MMMM d, yyyy\": ");
+            String endDateString = key.nextLine();
+            LocalDate endDate = LocalDate.parse(endDateString, dateFormatter);
+
             timeslot = ((Administrator) loggedUser).createLocationTimeslot(days, startTime, endTime, startDate, endDate, location.getSchedule());
         }
         System.out.println("Timeslot is valid.");
@@ -232,6 +246,7 @@ public class Main {
         System.out.println(
                 "Please pick an existing lesson by entering their ID or add a new lesson by entering \"0\"");
         System.out.println("0. Add a new lesson.");
+        ResultSet rs2 = db.displayLessons();
         while (rs2.next()) {
             if (rs2.getInt("capacity") == 1){
                 System.out.print(rs2.getString("id") + ". " + "Private " + rs2.getString("activityType") + " lesson.");
@@ -239,12 +254,14 @@ public class Main {
             else System.out.print(rs2.getString("id") + ". " + "Group " + rs2.getString("activityType") + " lesson of " + rs2.getString("capacity") + ".");
         }
         userInput = key.nextInt();
+        key.nextLine(); // To finish the line of nextInt
 
         // Create a lesson
         Lesson lesson;
         if (userInput == 0){
             System.out.println("Please enter the capacity of the lesson: ");
             int capacity = key.nextInt();
+            key.nextLine(); // To finish the line of nextInt
             System.out.println("Please enter the activity type of the lesson: ");
             String activityType = key.nextLine();
             lesson = new Lesson(activityType, capacity);

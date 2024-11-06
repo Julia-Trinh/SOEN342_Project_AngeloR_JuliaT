@@ -12,6 +12,11 @@ public class Administrator extends RegisteredUser{
         id = db.addAdmin(username, password, name, phoneNumber);
     }
 
+    public Administrator (int id, String username, String password, String name, int phoneNumber){
+        super(username, password, name, phoneNumber);
+        this.id = id;
+    }
+
     public int getId(){
         return id;
     }
