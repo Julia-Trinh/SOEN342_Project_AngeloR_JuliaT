@@ -165,7 +165,7 @@ public class Main {
                     key.nextLine();
                     System.out.print("Enter activity type: ");
                     String instructorActivityType = key.nextLine();
-                    System.out.print("Enter city availabilities: ");
+                    System.out.print("Enter city availabilities (seperate with comma): ");
                     String instructorCityAvailabilities = key.nextLine();
 
                     Instructor instructor = new Instructor(instructorUsername, instructorPassword, instructorName, instructorPhoneNumber, instructorActivityType, convertStringToList(instructorCityAvailabilities));
