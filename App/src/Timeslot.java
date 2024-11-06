@@ -2,6 +2,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 
 public class Timeslot {
@@ -25,6 +26,21 @@ public class Timeslot {
 
         // Change all attribute into a string before storing into the db
         id = db.addTimeslot(String.join(", ", days), startTime.format(timeFormatter), endTime.format(timeFormatter), startDate.format(dateFormatter), endDate.format(dateFormatter));
+    }
+
+    public Timeslot(int id, String days, String startTime, String endTime, String startDate, String endDate){
+        this.id = id;
+        
+        // Split the days string by commas and store it as a List
+        this.days = Arrays.asList(days.split(","));
+        
+        // Convert start and end times to LocalTime
+        this.startTime = LocalTime.parse(startTime, timeFormatter);
+        this.endTime = LocalTime.parse(endTime, timeFormatter);
+        
+        // Convert start and end dates to LocalDate
+        this.startDate = LocalDate.parse(startDate, dateFormatter);
+        this.endDate = LocalDate.parse(endDate, dateFormatter);
     }
 
     public int getId(){
@@ -58,6 +74,10 @@ public class Timeslot {
     public void setSchedule(Schedule schedule) throws ClassNotFoundException, SQLException {
         this.schedule = schedule;
         db.setScheduleToTimeslot(schedule.getId());
+    }
+
+    public void setRetrievedSchedule(Schedule schedule){
+        this.schedule = schedule;
     }
 
     public boolean isTimeslotOverlapping(Timeslot newTimeslot){

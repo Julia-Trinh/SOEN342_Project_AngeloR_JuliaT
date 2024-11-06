@@ -14,15 +14,13 @@ public class Organization {
         id = db.addOrganization(name);
     }
 
+    // If retrieved from db
+    public Organization(int id, String name){
+        this.id = id;
+        this.name = name;
+    }
+
     public int getId(){
         return id;
-    }
-
-    public void createOffering(Lesson lesson, Location location) throws ClassNotFoundException, SQLException{
-        offerings.add(new Offering(lesson, location)); //create unassigned offering
-    }
-
-    public void addLocation(Location location){
-        locations.add(location);
     }
 }

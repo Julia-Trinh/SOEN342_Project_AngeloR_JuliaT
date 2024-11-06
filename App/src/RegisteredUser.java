@@ -10,4 +10,20 @@ public class RegisteredUser {
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getPhoneNumber() {
+        return phoneNumber;
+    }
 }
