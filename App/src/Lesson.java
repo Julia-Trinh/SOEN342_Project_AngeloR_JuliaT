@@ -6,16 +6,19 @@ public class Lesson {
     private int id;
     private String activityType;
     private int capacity;
-    private Timeslot timeslot;
     private List<Offering> offerings;
     Database db = Database.getInstance();
 
-    public Lesson(String activityType, int capacity, Timeslot timeslot) throws ClassNotFoundException, SQLException {
+    public Lesson(String activityType, int capacity) throws ClassNotFoundException, SQLException {
         this.activityType = activityType;
         this.capacity = capacity;
-        this.timeslot = timeslot;
+        id = db.addLesson(activityType, capacity);
+    }
 
-        id = db.addLesson(activityType, capacity, timeslot.getId());
+    public Lesson(int id, String activityType, int capacity){
+        this.id = id;
+        this.activityType = activityType;
+        this.capacity = capacity;
     }
 
     public void addOffering(Offering offering){
@@ -24,10 +27,6 @@ public class Lesson {
 
     public int getId(){
         return id;
-    }
-
-    public Timeslot getTimeslot(){
-        return this.timeslot;
     }
 
     public int getCapacity(){

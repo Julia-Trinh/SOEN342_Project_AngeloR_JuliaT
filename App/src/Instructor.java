@@ -22,7 +22,7 @@ public class Instructor extends RegisteredUser{
     }
 
     public void pickOffering(Offering offering) throws ClassNotFoundException, SQLException{
-        if (schedule.isAvailableTimeslot(offering.getLessonTimeslot()) && cityAvailabilities.contains(offering.geLocation().getCity())){
+        if (schedule.isAvailableTimeslot(offering.getTimeslot()) && cityAvailabilities.contains(offering.getLocation().getCity())){
             offerings.add(offering);
             offering.assignOffering(this);
         }

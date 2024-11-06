@@ -22,6 +22,15 @@ public class Location {
         id = db.addLocation(name, activityType, city, organization.getId(), schedule.getId());
     }
 
+    // If retrieved from db
+    public Location(int id, String name, String activityType, String city, Organization organization, Schedule schedule) throws ClassNotFoundException, SQLException {
+        this.name = name;
+        this.activityType = activityType;
+        this.city = city;
+        this.schedule = schedule;
+        this.organization = organization;
+    }
+
     public void addOffering(Offering offering){
         offerings.add(offering);
     }

@@ -4,6 +4,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 // Singleton
 public class Database {
@@ -42,9 +46,7 @@ public class Database {
         "password VARCHAR(255) NOT NULL, " +
         "name VARCHAR(255) NOT NULL, " + 
         "phoneNumber INTEGER NOT NULL, " +
-        "organizationId INTEGER, " +
-        "PRIMARY KEY(id AUTOINCREMENT), " +
-        "FOREIGN KEY(organizationId) REFERENCES Organization(id)" +
+        "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
     // TO-DO: add city availabilities
@@ -96,7 +98,6 @@ public class Database {
         "id INTEGER NOT NULL UNIQUE, " + 
         "activityType VARCHAR(255) NOT NULL, " + 
         "capacity INTEGER NOT NULL, " +
-        "timeslotId INTEGER NOT NULL, " +
         "PRIMARY KEY(id AUTOINCREMENT), " +
         "FOREIGN KEY(timeslotId) REFERENCES Timeslot(id) " +
         ")";
@@ -121,12 +122,14 @@ public class Database {
         "id INTEGER NOT NULL UNIQUE, " + 
         "lessonId INTEGER NOT NULL, " + 
         "locationId INTEGER NOT NULL, " +
+        "timeslotId INTEGER NOT NULL, " +
         "instructorId INTEGER, " +
         "isAvailableToPublic BOOLEAN NOT NULL, " +
         "PRIMARY KEY(id AUTOINCREMENT), " +
         "FOREIGN KEY(instructorId) REFERENCES Instructor(id), " +
         "FOREIGN KEY(lessonId) REFERENCES Lesson(id), " +
-        "FOREIGN KEY(locationId) REFERENCES Location(id)" +
+        "FOREIGN KEY(locationId) REFERENCES Location(id), " +
+        "FOREIGN KEY(timeslotId) REFERENCES Timeslot(id)" +
         ")";
     
     private static final String CREATE_TABLE_BOOKING = 
@@ -218,17 +221,16 @@ public class Database {
     }
 
     // Add data to the database and return ID
-    public int addAdmin(String username, String password, String name, int phoneNumber, int organizationId) throws ClassNotFoundException, SQLException {
+    public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber, organizationId) VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Administrator (username, password, name, phoneNumber) VALUES (?, ?, ?, ?);");
         prep.setString(1, username);
         prep.setString(2, password);
         prep.setString(3, name);
         prep.setInt(4, phoneNumber);
-        prep.setInt(5, organizationId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -341,15 +343,14 @@ public class Database {
         return id;
     }
 
-    public int addLesson(String activityType, int capacity, int timeslotId) throws ClassNotFoundException, SQLException {
+    public int addLesson(String activityType, int capacity) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Lesson (activityType, capacity, timeslotId) VALUES (?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Lesson (activityType, capacity) VALUES (?, ?);");
         prep.setString(1, activityType);
         prep.setInt(2, capacity);
-        prep.setInt(3, timeslotId);
         prep.execute();
 
         // Retrieve the generated ID
@@ -387,15 +388,16 @@ public class Database {
         return id;
     }
 
-    public int addOffering(int lessonId, int locationId, boolean isAvailableToPublic) throws ClassNotFoundException, SQLException {
+    public int addOffering(int lessonId, int locationId, int timeslotId, boolean isAvailableToPublic) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Offering (lessonId, locationId, isAvailableToPublic) VALUES (?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Offering (lessonId, locationId, timeslotId, isAvailableToPublic) VALUES (?, ?, ?, ?);");
         prep.setInt(1, lessonId);
         prep.setInt(2, locationId);
-        prep.setBoolean(3, isAvailableToPublic);
+        prep.setInt(3, timeslotId);
+        prep.setBoolean(4, isAvailableToPublic);
         prep.execute();
 
         // Retrieve the generated ID
@@ -468,5 +470,87 @@ public class Database {
         prep.setInt(1, instructorId);
         prep.setBoolean(2, true);
         prep.execute();
+    }
+
+    public ResultSet displayLocations() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT id, name, spaceType, city FROM Location");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Locations found in the database.");
+        }
+        return rs;
+    }
+
+    public int getOrganizationIdFromName(String name) throws ClassNotFoundException, SQLException{
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT id FROM Organization WHERE name = ?");
+        prep.setString(1, name);
+        ResultSet rs = prep.executeQuery();
+
+        if (rs.next()){
+            return rs.getInt("id");
+        }
+        else return -1;
+    }
+
+    public Location retrieveLocation(int locationId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        // Get Location data
+        PreparedStatement prep1 = con.prepareStatement("SELECT id, name, spaceType, city, organizationId, scheduleId FROM Location WHERE id = ?");
+        prep1.setInt(1, locationId);
+        ResultSet rs1 = prep1.executeQuery();
+
+        // Get Organization data
+        PreparedStatement prep2 = con.prepareStatement("SELECT name FROM Organization WHERE id = ?");
+        prep2.setInt(1, rs1.getInt("organizationId"));
+        ResultSet rs2 = prep2.executeQuery();
+
+        // Get Timeslot data to create schedule
+        PreparedStatement prep3 = con.prepareStatement("SELECT id, startTime, endTime, days, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
+        prep3.setInt(1, rs1.getInt("scheduleId"));
+        ResultSet rs3 = prep3.executeQuery();
+        List<Timeslot> timeslots = new ArrayList<>();
+        while(rs3.next()){
+            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("days"), rs3.getString("startDate"), rs3.getString("endDate")));
+        }
+        Schedule s = new Schedule(rs3.getInt("id"), timeslots);
+        for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
+
+        return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
+    }
+
+    public ResultSet displayLessons() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT id, activityType, capacity FROM Lesson");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Lessons found in the database.");
+        }
+        return rs;
+    }
+
+    public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("SELECT activityType, capacity FROM Lesson WHERE id = ?");
+        prep.setInt(1, lessonId);
+        ResultSet rs = prep.executeQuery();
+
+        return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
     }
 }
