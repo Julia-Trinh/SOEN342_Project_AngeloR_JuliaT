@@ -47,7 +47,7 @@ public class Main {
                     }
                     break;
                 case 3:
-                    browsableOfferings();
+                    //browsableOfferings(); -> need to add
                     break;
                 case 4:
                     System.out.println("Exiting the menu. \nEnd of program.");
@@ -187,7 +187,7 @@ public class Main {
                     System.out.print("Enter organization: ");   //idk if we should add this
                     String adminOrganization = key.nextLine();
 
-                    Administrator admin = new Administrator(adminUsername, adminPassword, adminName, adminPhoneNumber, new Organization(adminOrganization));
+                    Administrator admin = new Administrator(adminUsername, adminPassword, adminName, adminPhoneNumber);
                     //add to database through constructor
                     System.out.println("Admin user added to database.");
                     break;
