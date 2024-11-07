@@ -32,6 +32,9 @@ public class Main {
                 switch (userOption) {
                     case 1: // login
                         userLogin();
+                        if (loggedUser instanceof Client) ;
+                        else if (loggedUser instanceof Instructor) ;
+                        else if (loggedUser instanceof Administrator) adminMenu();
                         break;
                     case 2: // register
                         try {
@@ -72,7 +75,7 @@ public class Main {
                 "4. Exit\n");
     }
 
-    public static void userLogin(){
+    public static void userLogin() throws ClassNotFoundException, SQLException{
         System.out.println("Please pick one of the following options:\n" + 
                             "1. Login as Client\n" +
                             "2. Login as Instructor\n" +
@@ -83,20 +86,23 @@ public class Main {
         Scanner key = new Scanner(System.in);
         int userOption = key.nextInt();
         key.nextLine();
-        System.out.print("\nUsername: ");
-        String username = key.nextLine();
-        System.out.print("\nPassword: ");
-        String password = key.nextLine();
+        
+        while (loggedUser == null){
+            System.out.print("\nUsername: ");
+            String username = key.nextLine();
+            System.out.print("Password: ");
+            String password = key.nextLine();
 
+            RegisteredUser user = null;
             switch (userOption) {
                 case 1: // login as client
-                    
+                    user = db.retrieveUserFromCredentials(username, password, "Client");
                     break;
                 case 2: // login as instructor
-                    
+                    user = db.retrieveUserFromCredentials(username, password, "Instructor");
                     break;
                 case 3: // login as admin
-                    
+                    user = db.retrieveUserFromCredentials(username, password, "Administrator");
                     break;
                 case 4: // return to default menu
                     break;
@@ -104,7 +110,10 @@ public class Main {
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
-            key.close();
+            if (user != null) loggedUser = user;
+            if (userOption == 4) break;
+        }
+        key.close();
     }
 
     public static void userRegistration() throws ClassNotFoundException, SQLException {
@@ -234,7 +243,7 @@ public class Main {
 
                         break;
                     case 6:
-                        System.out.println("Logged out.");
+                        System.out.println("Logging out...");
                         key.close();
                         return;
                     default:
@@ -242,6 +251,7 @@ public class Main {
                         break;
                 }
             } while (userOption != 1 || userOption != 2 || userOption != 3 || userOption != 4 || userOption != 5 || userOption != 6);
+            if (userOption == 6) break;
         }
     }
 

@@ -1,7 +1,6 @@
 import java.sql.SQLException;
 
 public class Guardian extends Client{
-    private int id;
     private String guardianName;
     private String relationshipWithYouth;
     private int guardianAge;
@@ -12,7 +11,15 @@ public class Guardian extends Client{
         this.guardianName = guardianName;
         this.relationshipWithYouth = relationshipWithYouth;
         this.guardianAge = guardianAge;
-        id = db.addClient(username, password, youthName, phoneNumber, age, this.schedule.getId(), true, guardianName, relationshipWithYouth, guardianAge);
+        this.id = db.addClient(username, password, youthName, phoneNumber, age, this.schedule.getId(), true, guardianName, relationshipWithYouth, guardianAge);
+    }
+
+    // If retrieved from db
+    public Guardian(int id, String username, String password, String name, int phoneNumber, int age, Schedule schedule, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException{
+        super(id, username, password, name, phoneNumber, age, schedule);
+        this.guardianName = guardianName;
+        this.relationshipWithYouth = relationshipWithYouth;
+        this.guardianAge = guardianAge;
     }
 
     public int getId(){
