@@ -451,13 +451,14 @@ public class Database {
         return id;
     }
 
-    public void setScheduleToTimeslot(int scheduleId) throws ClassNotFoundException, SQLException {
+    public void setScheduleToTimeslot(int timeslotId, int scheduleId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (scheduleId) VALUES (?);");
+        PreparedStatement prep = con.prepareStatement("UPDATE Timeslot SET scheduleId = ? WHERE id = ?;");
         prep.setInt(1, scheduleId);
+        prep.setInt(2, timeslotId);
         prep.execute();
     }
 
@@ -523,7 +524,7 @@ public class Database {
         while(rs3.next()){
             timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("days"), rs3.getString("startDate"), rs3.getString("endDate")));
         }
-        Schedule s = new Schedule(rs3.getInt("id"), timeslots);
+        Schedule s = new Schedule(rs1.getInt("scheduleId"), timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
 
         return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);

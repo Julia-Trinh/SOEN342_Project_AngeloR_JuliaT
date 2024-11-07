@@ -15,54 +15,52 @@ public class Main {
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
     static RegisteredUser loggedUser = null;
-    //static RegisteredUser loggedUser = new Administrator(1, "bla", "123", "bla", 514);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
         try {
             db.getConnection();
+
+            while (true) {
+                defaultMenu();
+                int userOption;
+                
+                System.out.print("Enter choice: ");
+                userOption = key.nextInt();
+                key.nextLine();
+                
+                switch (userOption) {
+                    case 1: // login
+                        userLogin();
+                        break;
+                    case 2: // register
+                        try {
+                            userRegistration();
+                        } catch (ClassNotFoundException | SQLException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 3: // browse offerings
+                        //browsableOfferings(); -> need to add
+                        break;
+                    case 4: // exit
+                        System.out.println("Exiting the menu. \nEnd of program.");
+                        break;
+            
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
+                }
+            
+                if (userOption == 4) {
+                    break;
+                }
+            }
+            key.close();
+
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-        
-        Scanner key = new Scanner(System.in);
-        while (true) {
-            defaultMenu();
-            int userOption;
-            
-            System.out.print("Enter choice: ");
-            userOption = key.nextInt();
-            key.nextLine();
-            
-            
-        
-            switch (userOption) {
-                case 1:
-                    userLogin();
-                    break;
-                case 2:
-                    try {
-                        userRegistration();
-                    } catch (ClassNotFoundException | SQLException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case 3:
-                    //browsableOfferings(); -> need to add
-                    break;
-                case 4:
-                    System.out.println("Exiting the menu. \nEnd of program.");
-                    break;
-        
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    break;
-            }
-        
-            if (userOption == 4) {
-                break;
-            }
-        }
-        key.close();
     }
 
     public static void defaultMenu() {
@@ -85,25 +83,27 @@ public class Main {
         Scanner key = new Scanner(System.in);
         int userOption = key.nextInt();
         key.nextLine();
-        
+        System.out.print("\nUsername: ");
+        String username = key.nextLine();
+        System.out.print("\nPassword: ");
+        String password = key.nextLine();
+
             switch (userOption) {
-                case 1:
-                    // login as customer
+                case 1: // login as client
+                    
                     break;
-                case 2:
-                    // login as instructor
+                case 2: // login as instructor
+                    
                     break;
-                case 3:
-                    // login as admin
+                case 3: // login as admin
+                    
                     break;
-                case 4:
+                case 4: // return to default menu
                     break;
-        
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
-        
             key.close();
     }
 
@@ -281,7 +281,7 @@ public class Main {
                 location = new Location(name, activityType, city,
                         new Organization(db.getOrganizationIdFromName(organizationName), organizationName));
             }
-            System.out.println("New location added.");
+            System.out.println("\nNew location added.\n");
         }
         // Retrieve existing location
         else {
@@ -314,7 +314,7 @@ public class Main {
 
             timeslot = ((Administrator) loggedUser).createLocationTimeslot(days, startTime, endTime, startDate, endDate, location.getSchedule());
         }
-        System.out.println("Timeslot is valid.");
+        System.out.println("\nTimeslot is valid.\n");
 
         // Let Admin create a new or select an existing lesson
         System.out.println(
@@ -323,9 +323,9 @@ public class Main {
         ResultSet rs2 = db.displayLessons();
         while (rs2.next()) {
             if (rs2.getInt("capacity") == 1){
-                System.out.print(rs2.getString("id") + ". " + "Private " + rs2.getString("activityType") + " lesson.");
+                System.out.println(rs2.getString("id") + ". " + "Private " + rs2.getString("activityType") + " lesson.");
             }
-            else System.out.print(rs2.getString("id") + ". " + "Group " + rs2.getString("activityType") + " lesson of " + rs2.getString("capacity") + ".");
+            else System.out.println(rs2.getString("id") + ". " + "Group " + rs2.getString("activityType") + " lesson of " + rs2.getString("capacity") + ".");
         }
         userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
@@ -339,6 +339,7 @@ public class Main {
             System.out.println("Please enter the activity type of the lesson: ");
             String activityType = key.nextLine();
             lesson = new Lesson(activityType, capacity);
+            System.out.println("\nNew lesson created.\n");
         }
         // Retrieve existing lesson
         else{
@@ -348,7 +349,7 @@ public class Main {
         // Create an offering
         Offering offering = new Offering(lesson, location, timeslot);
         lesson.addOffering(offering);
-        System.out.println("New offering created.");
+        System.out.println("\nNew offering created.\n");
 
         key.close();
     }
