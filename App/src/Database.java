@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -529,7 +527,7 @@ public class Database {
         ResultSet rs3 = prep.executeQuery();
         List<Timeslot> timeslots = new ArrayList<>();
         while(rs3.next()){
-            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("days"), rs3.getString("startDate"), rs3.getString("endDate")));
+            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("days"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("startDate"), rs3.getString("endDate")));
         }
         Schedule s = new Schedule(scheduleId, timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);

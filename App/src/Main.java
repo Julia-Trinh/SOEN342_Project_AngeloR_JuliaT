@@ -113,7 +113,7 @@ public class Main {
             if (user != null) loggedUser = user;
             if (userOption == 4) break;
         }
-        key.close();
+        //key.close();
     }
 
     public static void userRegistration() throws ClassNotFoundException, SQLException {
@@ -193,8 +193,6 @@ public class Main {
                     System.out.print("Enter phone number: ");
                     int adminPhoneNumber = key.nextInt();
                     key.nextLine();
-                    System.out.print("Enter organization: ");   //idk if we should add this
-                    String adminOrganization = key.nextLine();
 
                     Administrator admin = new Administrator(adminUsername, adminPassword, adminName, adminPhoneNumber);
                     //add to database through constructor
@@ -215,7 +213,7 @@ public class Main {
     public static void adminMenu() throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
         while(true){
-            System.out.println("Hello " + loggedUser.getName() + ", please chose what you want to do as an admin:\n" +
+            System.out.println("\nHello " + loggedUser.getName() + ", please chose what you want to do as an admin:\n" +
                     "1. View all bookings.\n" +
                     "2. Manage bookings.\n" +
                     "3. View all offerings.\n" +
@@ -224,34 +222,33 @@ public class Main {
                     "6. Logout.");
             
             int userOption;
-            do {
-                userOption = key.nextInt();
-                switch (userOption) {
-                    case 1:
+            System.out.print("Enter choice: ");
+            userOption = key.nextInt();
+            key.nextLine();
+            switch (userOption) {
+                case 1:
 
-                        break;
-                    case 2:
+                    break;
+                case 2:
 
-                        break;
-                    case 3:
+                    break;
+                case 3:
 
-                        break;
-                    case 4:
-                        addOffering();
-                        break;
-                    case 5:
+                    break;
+                case 4:
+                    addOffering();
+                    break;
+                case 5:
 
-                        break;
-                    case 6:
-                        System.out.println("Logging out...");
-                        key.close();
-                        return;
-                    default:
-                        System.out.println("Invalid option. Please try again.");
-                        break;
-                }
-            } while (userOption != 1 || userOption != 2 || userOption != 3 || userOption != 4 || userOption != 5 || userOption != 6);
-            if (userOption == 6) break;
+                    break;
+                case 6:
+                    System.out.println("Logging out...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+
         }
     }
 
@@ -361,7 +358,7 @@ public class Main {
         lesson.addOffering(offering);
         System.out.println("\nNew offering created.\n");
 
-        key.close();
+        
     }
 
     public static List<String> convertStringToList(String str){
