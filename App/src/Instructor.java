@@ -2,7 +2,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class Instructor extends RegisteredUser{
-    private int id;
     private String activityType;
     private List<String> cityAvailabilities;
     private List<Offering> offerings; // To get from database: SELECT * FROM Offering WHERE instructorId = __;
@@ -15,6 +14,15 @@ public class Instructor extends RegisteredUser{
         this.cityAvailabilities = cityAvailabilities;
         this.schedule = new Schedule();
         id = db.addInstructor(username, password, name, phoneNumber, this.schedule.getId(), convertListToString(cityAvailabilities), activityType);
+    }
+
+    // If retrieved from db
+    public Instructor(int id, String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities, Schedule schedule) throws ClassNotFoundException, SQLException{
+        super(username, password, name, phoneNumber);
+        this.id = id;
+        this.activityType = activityType;
+        this.cityAvailabilities = cityAvailabilities;
+        this.schedule = schedule;
     }
 
     public int getId(){

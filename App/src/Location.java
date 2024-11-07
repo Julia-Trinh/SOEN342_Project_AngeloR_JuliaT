@@ -24,6 +24,7 @@ public class Location {
 
     // If retrieved from db
     public Location(int id, String name, String activityType, String city, Organization organization, Schedule schedule) throws ClassNotFoundException, SQLException {
+        this.id = id;
         this.name = name;
         this.activityType = activityType;
         this.city = city;

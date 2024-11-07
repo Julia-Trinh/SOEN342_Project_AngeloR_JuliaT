@@ -73,7 +73,7 @@ public class Timeslot {
 
     public void setSchedule(Schedule schedule) throws ClassNotFoundException, SQLException {
         this.schedule = schedule;
-        db.setScheduleToTimeslot(schedule.getId());
+        db.setScheduleToTimeslot(id, schedule.getId());
     }
 
     public void setRetrievedSchedule(Schedule schedule){

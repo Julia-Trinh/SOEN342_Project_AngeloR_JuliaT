@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // Singleton
@@ -451,13 +452,14 @@ public class Database {
         return id;
     }
 
-    public void setScheduleToTimeslot(int scheduleId) throws ClassNotFoundException, SQLException {
+    public void setScheduleToTimeslot(int timeslotId, int scheduleId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (scheduleId) VALUES (?);");
+        PreparedStatement prep = con.prepareStatement("UPDATE Timeslot SET scheduleId = ? WHERE id = ?;");
         prep.setInt(1, scheduleId);
+        prep.setInt(2, timeslotId);
         prep.execute();
     }
 
@@ -515,18 +517,24 @@ public class Database {
         prep2.setInt(1, rs1.getInt("organizationId"));
         ResultSet rs2 = prep2.executeQuery();
 
-        // Get Timeslot data to create schedule
-        PreparedStatement prep3 = con.prepareStatement("SELECT id, startTime, endTime, days, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
-        prep3.setInt(1, rs1.getInt("scheduleId"));
-        ResultSet rs3 = prep3.executeQuery();
+        // Get schedule
+        Schedule s = retrieveSchedule(rs1.getInt("scheduleId"));
+
+        return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
+    }
+
+    public Schedule retrieveSchedule(int scheduleId) throws SQLException{
+        PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, days, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
+        prep.setInt(1, scheduleId);
+        ResultSet rs3 = prep.executeQuery();
         List<Timeslot> timeslots = new ArrayList<>();
         while(rs3.next()){
             timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("days"), rs3.getString("startDate"), rs3.getString("endDate")));
         }
-        Schedule s = new Schedule(rs3.getInt("id"), timeslots);
+        Schedule s = new Schedule(scheduleId, timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
 
-        return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
+        return s;
     }
 
     public ResultSet displayLessons() throws ClassNotFoundException, SQLException {
@@ -552,5 +560,68 @@ public class Database {
         ResultSet rs = prep.executeQuery();
 
         return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
+    }
+
+    public RegisteredUser retrieveUserFromCredentials(String username, String password, String userType) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        // Client
+        if (userType.equals("Client")){
+            PreparedStatement prep = con.prepareStatement("SELECT * FROM Client WHERE username = ? AND password = ?;");
+            prep.setString(1, username);
+            prep.setString(2, password);
+            ResultSet rs = prep.executeQuery();
+            Schedule schedule = retrieveSchedule(rs.getInt("scheduleId"));
+
+            RegisteredUser user = null;
+            if (rs.next()) {
+                if (rs.getBoolean("isGuardian") == false){
+                    user = new Client(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getString("name"),
+                                        rs.getInt("phoneNumber"), rs.getInt("age"), schedule);
+                }
+                else {
+                    user = new Guardian (rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getString("name"),
+                                            rs.getInt("phoneNumber"), rs.getInt("age"), schedule, rs.getString("guardianName"), 
+                                            rs.getString("relationshipWithYouth"), rs.getInt("guardianAge"));
+                }
+            }
+            return user;
+        }
+
+        // Instructor
+        else if (userType.equals("Instructor")){
+            PreparedStatement prep = con.prepareStatement("SELECT * FROM Instructor WHERE username = ? AND password = ?;");
+            prep.setString(1, username);
+            prep.setString(2, password);
+            ResultSet rs = prep.executeQuery();
+            Schedule schedule = retrieveSchedule(rs.getInt("scheduleId"));
+
+            RegisteredUser user = null;
+            if (rs.next()) {
+                user = new Instructor(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getString("name"),
+                                        rs.getInt("phoneNumber"), rs.getString("activityType"), 
+                                        Arrays.asList(rs.getString("cityAvailabilities").split(",")), schedule);
+            }
+            return user;
+        }
+
+        // Admin
+        else if (userType.equals("Administrator")){
+            PreparedStatement prep = con.prepareStatement("SELECT * FROM Administrator WHERE username = ? AND password = ?;");
+            prep.setString(1, username);
+            prep.setString(2, password);
+            ResultSet rs = prep.executeQuery();
+
+            RegisteredUser user = null;
+            if (rs.next()) {
+                user = new Administrator(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getString("name"),
+                                            rs.getInt("phoneNumber"));
+            }
+            return user;
+        }
+
+        else return null;
     }
 }

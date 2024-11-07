@@ -6,7 +6,7 @@ public class Lesson {
     private int id;
     private String activityType;
     private int capacity;
-    private List<Offering> offerings;
+    private List<Offering> offerings = new ArrayList<>();
     Database db = Database.getInstance();
 
     public Lesson(String activityType, int capacity) throws ClassNotFoundException, SQLException {

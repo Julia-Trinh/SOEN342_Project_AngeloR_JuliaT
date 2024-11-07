@@ -2,7 +2,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class Client extends RegisteredUser{
-    protected  int id;
     protected  int age;
     private List<Booking> bookings;
     protected Schedule schedule;
@@ -12,13 +11,22 @@ public class Client extends RegisteredUser{
         super(username, password, name, phoneNumber);
         this.age = age;
         this.schedule = new Schedule();
-        id = db.addClient(username, password, name, phoneNumber, age, this.schedule.getId(), false, "", "", -1);
+        this.id = db.addClient(username, password, name, phoneNumber, age, this.schedule.getId(), false, "", "", -1);
     }
 
-    public Client(String username, String password, String name, int phoneNumber, int age, boolean isGuardian) throws ClassNotFoundException, SQLException{
+    // If is guardian
+    public Client(String username, String password, String name, int phoneNumber, int age, boolean isGuardian) throws ClassNotFoundException, SQLException {
         super(username, password, name, phoneNumber);
         this.age = age;
         this.schedule = new Schedule();
+    }
+
+    // If retrieved from db
+    public Client(int id, String username, String password, String name, int phoneNumber, int age, Schedule schedule) {
+        super(username, password, name, phoneNumber);
+        this.id = id;
+        this.age = age;
+        this.schedule = schedule;
     }
 
     public int getId(){

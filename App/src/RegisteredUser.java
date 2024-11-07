@@ -1,4 +1,5 @@
 public class RegisteredUser {
+    protected int id;
     protected String username;
     protected String password;
     protected String name;
