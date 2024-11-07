@@ -622,4 +622,17 @@ public class Database {
 
         else return null;
     }
+
+    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT id, lessonId, locationId, timeslotId FROM Offering WHERE instructorId IS NULL AND isAvailableToPublic = 1");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no unassigned Offerings found in the database.");
+        }
+        return rs;
+    }
 }
