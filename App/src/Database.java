@@ -650,4 +650,62 @@ public class Database {
         }
         return rs;
     }
+
+    public ResultSet displayClients() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT * FROM Client;");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Clients found in the database.");
+        }
+        return rs;
+    }
+
+    public ResultSet displayInstructors() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT * FROM Instructor;");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Instructors found in the database.");
+        }
+        return rs;
+    }
+
+    public void deleteClient(int clientId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("DELETE FROM Client WHERE id = ?;");
+        prep.setInt(1, clientId);
+    
+        int rowsAffected = prep.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("\nClient with ID " + clientId + " has been deleted.");
+        } else {
+            System.out.println("\nNo client found with ID " + clientId + ".");
+        }
+    }    
+
+    public void deleteInstructor(int instructorId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("DELETE FROM Instructor WHERE id = ?;");
+        prep.setInt(1, instructorId);
+    
+        int rowsAffected = prep.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("\nInstructor with ID " + instructorId + " has been deleted.");
+        } else {
+            System.out.println("\nNo instructor found with ID " + instructorId + ".");
+        }
+    } 
 }

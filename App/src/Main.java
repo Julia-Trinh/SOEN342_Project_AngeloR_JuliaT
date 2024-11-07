@@ -20,45 +20,45 @@ public class Main {
         Scanner key = new Scanner(System.in);
         try {
             db.getConnection();
-            adminMenu();
-            // while (true) {
-            //     defaultMenu();
-            //     int userOption;
+
+            while (true) {
+                defaultMenu();
+                int userOption;
                 
-            //     System.out.print("Enter choice: ");
-            //     userOption = key.nextInt();
-            //     key.nextLine();
+                System.out.print("Enter choice: ");
+                userOption = key.nextInt();
+                key.nextLine();
                 
-            //     switch (userOption) {
-            //         case 1: // login
-            //             userLogin();
-            //             if (loggedUser instanceof Client) ;
-            //             else if (loggedUser instanceof Instructor) ;
-            //             else if (loggedUser instanceof Administrator) adminMenu();
-            //             break;
-            //         case 2: // register
-            //             try {
-            //                 userRegistration();
-            //             } catch (ClassNotFoundException | SQLException e) {
-            //                 e.printStackTrace();
-            //             }
-            //             break;
-            //         case 3: // browse offerings
-            //             //browsableOfferings(); -> need to add
-            //             break;
-            //         case 4: // exit
-            //             System.out.println("Exiting the menu. \nEnd of program.");
-            //             break;
+                switch (userOption) {
+                    case 1: // login
+                        userLogin();
+                        if (loggedUser instanceof Client) ;
+                        else if (loggedUser instanceof Instructor) ;
+                        else if (loggedUser instanceof Administrator) adminMenu();
+                        break;
+                    case 2: // register
+                        try {
+                            userRegistration();
+                        } catch (ClassNotFoundException | SQLException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    case 3: // browse offerings
+                        //browsableOfferings(); -> need to add
+                        break;
+                    case 4: // exit
+                        System.out.println("Exiting the menu. \nEnd of program.");
+                        break;
             
-            //         default:
-            //             System.out.println("Invalid option. Please try again.");
-            //             break;
-            //     }
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
+                }
             
-            //     if (userOption == 4) {
-            //         break;
-            //     }
-            // }
+                if (userOption == 4) {
+                    break;
+                }
+            }
             key.close();
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -229,10 +229,10 @@ public class Main {
                 key.nextLine();
                 switch (userOption) {
                     case 1:
-
+                        // TO-DO
                         break;
                     case 2:
-
+                        // TO-DO
                         break;
                     case 3:
                         ResultSet rs = db.displayOfferings();
@@ -248,10 +248,10 @@ public class Main {
                         addOffering();
                         break;
                     case 5:
-
+                        manageAccounts();
                         break;
                     case 6:
-                        System.out.println("Logging out...");
+                        System.out.println("\nLogging out...");
                         key.close();
                         return;
                     default:
@@ -272,7 +272,7 @@ public class Main {
         System.out.println("0. Add a new location.");
         ResultSet rs1 = db.displayLocations();
         while (rs1.next()) {
-            System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers " + rs1.getString("spaceType")
+            System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers a " + rs1.getString("spaceType")
                     + " classes in " + rs1.getString("city") + ".");
         }
         int userInput = key.nextInt();
@@ -379,5 +379,51 @@ public class Main {
             list.add(s);
         }
         return list;
+    }
+
+    public static void manageAccounts() throws ClassNotFoundException, SQLException{
+        Scanner key = new Scanner(System.in);
+
+        System.out.print("\nWould you like to view Instructor accounts (1) or Client accounts (2)?: ");
+        int userOption = key.nextInt();
+        key.nextLine();
+
+        int accountDeletionOption = -1;
+        do {
+            switch (userOption) {
+                case 1:
+                    ResultSet rs1 = db.displayInstructors();
+                    while (rs1.next()){
+                        System.out.println(rs1.getString("id") + ". Username: " + rs1.getString("username") + " | Name: " + rs1.getString("name") +
+                                            " | Phone Number: " + rs1.getString("phoneNumber") + " | Age: " + rs1.getString("age"));
+                    }
+                    System.out.print("\nTo delete an account, enter its ID. To exit, enter 0: ");
+                    accountDeletionOption = key.nextInt();
+                    key.nextLine();
+                    if (accountDeletionOption != 0){
+                        db.deleteInstructor(accountDeletionOption);
+                    }
+                    break;
+    
+                case 2:
+                    ResultSet rs2 = db.displayClients();
+                    while (rs2.next()){
+                        System.out.println(rs2.getString("id") + ". Username: " + rs2.getString("username") + " | Name: " + rs2.getString("name") +
+                                            " | Phone Number: " + rs2.getString("phoneNumber") + " | Age: " + rs2.getString("age"));
+                    }
+                    System.out.print("\nTo delete an account, enter its ID. To exit, enter 0: ");
+                    accountDeletionOption = key.nextInt();
+                    key.nextLine();
+                    if (accountDeletionOption != 0){
+                        db.deleteClient(accountDeletionOption);
+                    }
+                    break;
+    
+                default:
+                    System.out.println("\nPlease enter 1 or 2.\n");
+                    break;
+            }
+            if (accountDeletionOption == 0) break;
+        } while (userOption != 1 && userOption != 2);
     }
 }
