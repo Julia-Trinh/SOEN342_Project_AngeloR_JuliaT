@@ -14,51 +14,51 @@ public class Main {
     static Database db = Database.getInstance();
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
-    static RegisteredUser loggedUser = null;
+    static RegisteredUser loggedUser = new Administrator(0, null, null, "Julia", 0); //null;
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
         try {
             db.getConnection();
-
-            while (true) {
-                defaultMenu();
-                int userOption;
+            adminMenu();
+            // while (true) {
+            //     defaultMenu();
+            //     int userOption;
                 
-                System.out.print("Enter choice: ");
-                userOption = key.nextInt();
-                key.nextLine();
+            //     System.out.print("Enter choice: ");
+            //     userOption = key.nextInt();
+            //     key.nextLine();
                 
-                switch (userOption) {
-                    case 1: // login
-                        userLogin();
-                        if (loggedUser instanceof Client) ;
-                        else if (loggedUser instanceof Instructor) ;
-                        else if (loggedUser instanceof Administrator) adminMenu();
-                        break;
-                    case 2: // register
-                        try {
-                            userRegistration();
-                        } catch (ClassNotFoundException | SQLException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 3: // browse offerings
-                        //browsableOfferings(); -> need to add
-                        break;
-                    case 4: // exit
-                        System.out.println("Exiting the menu. \nEnd of program.");
-                        break;
+            //     switch (userOption) {
+            //         case 1: // login
+            //             userLogin();
+            //             if (loggedUser instanceof Client) ;
+            //             else if (loggedUser instanceof Instructor) ;
+            //             else if (loggedUser instanceof Administrator) adminMenu();
+            //             break;
+            //         case 2: // register
+            //             try {
+            //                 userRegistration();
+            //             } catch (ClassNotFoundException | SQLException e) {
+            //                 e.printStackTrace();
+            //             }
+            //             break;
+            //         case 3: // browse offerings
+            //             //browsableOfferings(); -> need to add
+            //             break;
+            //         case 4: // exit
+            //             System.out.println("Exiting the menu. \nEnd of program.");
+            //             break;
             
-                    default:
-                        System.out.println("Invalid option. Please try again.");
-                        break;
-                }
+            //         default:
+            //             System.out.println("Invalid option. Please try again.");
+            //             break;
+            //     }
             
-                if (userOption == 4) {
-                    break;
-                }
-            }
+            //     if (userOption == 4) {
+            //         break;
+            //     }
+            // }
             key.close();
 
         } catch (SQLException | ClassNotFoundException e) {
@@ -215,7 +215,7 @@ public class Main {
     public static void adminMenu() throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
         while(true){
-            System.out.println("Hello " + loggedUser.getName() + ", please chose what you want to do as an admin:\n" +
+            System.out.println("\nHello " + loggedUser.getName() + ", please chose what you want to do as an admin:\n" +
                     "1. View all bookings.\n" +
                     "2. Manage bookings.\n" +
                     "3. View all offerings.\n" +
@@ -226,6 +226,7 @@ public class Main {
             int userOption;
             do {
                 userOption = key.nextInt();
+                key.nextLine();
                 switch (userOption) {
                     case 1:
 
@@ -234,7 +235,14 @@ public class Main {
 
                         break;
                     case 3:
-
+                        ResultSet rs = db.displayOfferings();
+                        while (rs.next()){
+                            System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
+                                                rs.getString("activityType") + " classes on " + rs.getString("days") + " from " + rs.getString("startTime") +
+                                                " to " + rs.getString("endTime") + ", from " + rs.getString("startDate") + " to " + rs.getString("endDate") + ".");
+                        }
+                        System.out.println("\nPress any key to continue.");
+                        key.nextLine();
                         break;
                     case 4:
                         addOffering();
@@ -250,7 +258,7 @@ public class Main {
                         System.out.println("Invalid option. Please try again.");
                         break;
                 }
-            } while (userOption != 1 || userOption != 2 || userOption != 3 || userOption != 4 || userOption != 5 || userOption != 6);
+            } while (userOption != 1 && userOption != 2 && userOption != 3 && userOption != 4 && userOption != 5 && userOption != 6);
             if (userOption == 6) break;
         }
     }

@@ -624,4 +624,30 @@ public class Database {
 
         else return null;
     }
+
+    public ResultSet displayOfferings() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("""
+                                                    SELECT 
+                                                        Location.name AS locationName,
+                                                        Location.city,
+                                                        Location.spaceType AS activityType,
+                                                        Timeslot.days,
+                                                        Timeslot.startTime,
+                                                        Timeslot.endTime,
+                                                        Timeslot.startDate,
+                                                        Timeslot.endDate
+                                                    FROM Offering
+                                                    JOIN Location ON Offering.locationId = Location.id
+                                                    JOIN Timeslot ON Offering.timeslotId = Timeslot.id;
+                                                    """);
+        ResultSet rs = prep.executeQuery();
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Offerings found in the database.");
+        }
+        return rs;
+    }
 }
