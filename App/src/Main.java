@@ -33,7 +33,7 @@ public class Main {
                     case 1: // login
                         userLogin();
                         if (loggedUser instanceof Client) ;
-                        else if (loggedUser instanceof Instructor) ;
+                        else if (loggedUser instanceof Instructor) instructorMenu();
                         else if (loggedUser instanceof Administrator) adminMenu();
                         break;
                     case 2: // register
@@ -261,8 +261,8 @@ public class Main {
         System.out.println("0. Add a new location.");
         ResultSet rs1 = db.displayLocations();
         while (rs1.next()) {
-            System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers " + rs1.getString("spaceType")
-                    + " classes in " + rs1.getString("city") + ".");
+            System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers a " + rs1.getString("spaceType")
+                    + " space in " + rs1.getString("city") + ".");
         }
         int userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
@@ -273,7 +273,7 @@ public class Main {
             System.out.println("Please enter the name of the location: ");
             String name = key.nextLine();
 
-            System.out.println("Please enter the activity type of the location: ");
+            System.out.println("Please enter the space type of the location: ");
             String activityType = key.nextLine();
 
             System.out.println("Please enter the city of the location: ");
@@ -334,6 +334,7 @@ public class Main {
             }
             else System.out.println(rs2.getString("id") + ". " + "Group " + rs2.getString("activityType") + " lesson of " + rs2.getString("capacity") + ".");
         }
+        System.out.print("Enter choice: ");
         userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
 
@@ -358,6 +359,65 @@ public class Main {
         lesson.addOffering(offering);
         System.out.println("\nNew offering created.\n");
 
+        
+    }
+
+    public static void instructorMenu() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("\nHello " + loggedUser.getName() + ",");
+        while(true){
+            System.out.println("\nplease chose what you want to do as an instructor:\n" +
+                    "1. View all my bookings\n" +
+                    "2. View unassigned Offers\n" +
+                    "3. Assign to Offer\n" +
+                    "4. Logout\n");
+            int userOption;
+            System.out.print("Enter choice: ");
+            userOption = key.nextInt();
+            key.nextLine();
+
+            switch (userOption) {
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+                    assignOffering();
+                    break;
+                case 4:
+                    System.out.println("Logging out...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    public static void assignOffering() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Please pick an offering to assign to yourself by entering their ID.");
+        Instructor instructor = (Instructor) loggedUser;
+        ResultSet rs = db.displayUnassignedOfferings(instructor.getCityAvailabilities());
+
+        System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                  "ID", "Activity Type", "Location Name", "Location City", 
+                  "Start Time", "End Time", "Start Date", "End Date", "Days");
+
+        // Print values
+        while (rs.next()) {
+            System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                            rs.getString("id"), rs.getString("activityType"), rs.getString("locationName"), rs.getString("locationCity"), 
+                            rs.getString("startTime"), rs.getString("endTime"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("days"));
+        }
+    
+        System.out.print("\nEnter choice: ");
+        int userInput = key.nextInt();
+        key.nextLine(); // To finish the line of nextInt
+
+        //select offering
         
     }
 

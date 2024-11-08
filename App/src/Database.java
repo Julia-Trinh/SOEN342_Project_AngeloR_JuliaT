@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Singleton
 public class Database {
@@ -628,8 +629,25 @@ public class Database {
             getConnection();
         }
 
+        // Convert list to a single string
+        String cityList = cityAvailabilities.stream()
+        .map(city -> "'" + city + "'")
+        .collect(Collectors.joining(", "));
+
+        String query = "SELECT o.id, l.activityType, loc.name AS locationName, loc.city AS locationCity, " +
+        "t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
+        "FROM Offering o " +
+        "JOIN Lesson l ON o.lessonId = l.id " +
+        "JOIN Location loc ON o.locationId = loc.id " +
+        "JOIN Timeslot t ON o.timeslotId = t.id " +
+        "WHERE o.instructorId IS NULL " +
+        "AND o.isAvailableToPublic = 0 " +   //must be unassigned
+        "AND loc.city IN (" + cityList + ")";
+
         Statement state = con.createStatement();
-        ResultSet rs = state.executeQuery("SELECT id, lessonId, locationId, timeslotId FROM Offering WHERE instructorId IS NULL AND isAvailableToPublic = 1");
+        ResultSet rs = state.executeQuery(query);
+
+
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no unassigned Offerings found in the database.");
         }
