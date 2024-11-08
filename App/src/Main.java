@@ -21,6 +21,8 @@ public class Main {
         try {
             db.getConnection();
 
+            Timeslot timeslot = new Timeslot(Arrays.asList("Monday", "Wednesday"), LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
+
             while (true) {
                 defaultMenu();
                 int userOption;
@@ -33,7 +35,7 @@ public class Main {
                     case 1: // login
                         userLogin();
                         if (loggedUser instanceof Client) ;
-                        else if (loggedUser instanceof Instructor) ;
+                        else if (loggedUser instanceof Instructor) instructorMenu();
                         else if (loggedUser instanceof Administrator) adminMenu();
                         break;
                     case 2: // register
@@ -113,7 +115,7 @@ public class Main {
             if (user != null) loggedUser = user;
             if (userOption == 4) break;
         }
-        key.close();
+        //key.close();
     }
 
     public static void userRegistration() throws ClassNotFoundException, SQLException {
@@ -193,8 +195,6 @@ public class Main {
                     System.out.print("Enter phone number: ");
                     int adminPhoneNumber = key.nextInt();
                     key.nextLine();
-                    System.out.print("Enter organization: ");   //idk if we should add this
-                    String adminOrganization = key.nextLine();
 
                     Administrator admin = new Administrator(adminUsername, adminPassword, adminName, adminPhoneNumber);
                     //add to database through constructor
@@ -224,18 +224,19 @@ public class Main {
                     "6. Logout.");
             
             int userOption;
-            do {
-                userOption = key.nextInt();
-                key.nextLine();
-                switch (userOption) {
-                    case 1:
-                        // TO-DO
-                        break;
-                    case 2:
-                        // TO-DO
-                        break;
-                    case 3:
-                        ResultSet rs = db.displayOfferings();
+
+            System.out.print("Enter choice: ");
+            userOption = key.nextInt();
+            key.nextLine();
+            switch (userOption) {
+                case 1:
+                    // TO-DO
+                    break;
+                case 2:
+                    // TO-DO
+                    break;
+                case 3:
+                     ResultSet rs = db.displayOfferings();
                         while (rs.next()){
                             System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
                                                 rs.getString("activityType") + " classes on " + rs.getString("days") + " from " + rs.getString("startTime") +
@@ -243,23 +244,20 @@ public class Main {
                         }
                         System.out.println("\nPress any key to continue.");
                         key.nextLine();
-                        break;
-                    case 4:
-                        addOffering();
-                        break;
-                    case 5:
-                        manageAccounts();
-                        break;
-                    case 6:
-                        System.out.println("\nLogging out...");
-                        key.close();
-                        return;
-                    default:
-                        System.out.println("Invalid option. Please try again.");
-                        break;
-                }
-            } while (userOption != 1 && userOption != 2 && userOption != 3 && userOption != 4 && userOption != 5 && userOption != 6);
-            if (userOption == 6) break;
+                    break;
+                case 4:
+                    addOffering();
+                    break;
+                case 5:
+                    manageAccounts();
+                    break;
+                case 6:
+                    System.out.println("Logging out...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
         }
     }
 
@@ -273,7 +271,8 @@ public class Main {
         ResultSet rs1 = db.displayLocations();
         while (rs1.next()) {
             System.out.println(rs1.getString("id") + ". " + rs1.getString("name") + " offers a " + rs1.getString("spaceType")
-                    + " classes in " + rs1.getString("city") + ".");
+                    + " space in " + rs1.getString("city") + ".");
+
         }
         int userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
@@ -284,7 +283,7 @@ public class Main {
             System.out.println("Please enter the name of the location: ");
             String name = key.nextLine();
 
-            System.out.println("Please enter the activity type of the location: ");
+            System.out.println("Please enter the space type of the location: ");
             String activityType = key.nextLine();
 
             System.out.println("Please enter the city of the location: ");
@@ -345,6 +344,7 @@ public class Main {
             }
             else System.out.println(rs2.getString("id") + ". " + "Group " + rs2.getString("activityType") + " lesson of " + rs2.getString("capacity") + ".");
         }
+        System.out.print("Enter choice: ");
         userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
 
@@ -369,8 +369,81 @@ public class Main {
         lesson.addOffering(offering);
         System.out.println("\nNew offering created.\n");
 
-        key.close();
+        
     }
+
+    public static void instructorMenu() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("\nHello " + loggedUser.getName() + ",");
+        while(true){
+            System.out.println("\nplease chose what you want to do as an instructor:\n" +
+                    "1. View all my bookings\n" +
+                    "2. View unassigned Offers\n" +
+                    "3. Assign to Offer\n" +
+                    "4. Logout\n");
+            int userOption;
+            System.out.print("Enter choice: ");
+            userOption = key.nextInt();
+            key.nextLine();
+
+            switch (userOption) {
+                case 1:
+
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+                    assignOffering();
+                    break;
+                case 4:
+                    System.out.println("Logging out...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+        }
+    }
+
+    public static void assignOffering() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Please pick an offering to assign to yourself by entering their ID.");
+        Instructor instructor = (Instructor) loggedUser;
+        ResultSet rs = db.displayUnassignedOfferings(instructor.getCityAvailabilities());
+
+        System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                  "ID", "Activity Type", "Location Name", "Location City", 
+                  "Start Time", "End Time", "Start Date", "End Date", "Days");
+
+        // Print values
+        while (rs.next()) {
+            System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                            rs.getString("id"), rs.getString("activityType"), rs.getString("locationName"), rs.getString("locationCity"), 
+                            rs.getString("startTime"), rs.getString("endTime"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("days"));
+        }
+    
+        System.out.print("\nEnter choice: ");
+        int userInput = key.nextInt();
+        key.nextLine(); // To finish the line of nextInt
+
+        //check if offer fits in instructor's schedule
+        boolean fitsInSchedule = instructor.getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(userInput));
+
+        if(fitsInSchedule){
+            System.out.println("Offering fits in schedule.");
+            //assign offering to instructor
+            db.assignInstructor(instructor.getId(), userInput);
+        }
+        else{
+            System.out.println("Offering does not fit in schedule.");
+            return;
+        }
+
+        
+    }
+
+
 
     public static List<String> convertStringToList(String str){
         List<String> list = new ArrayList<String>();

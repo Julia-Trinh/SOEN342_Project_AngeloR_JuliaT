@@ -1,5 +1,4 @@
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Offering {
@@ -57,5 +56,9 @@ public class Offering {
 
     public Timeslot getTimeslot(){
         return timeslot;
+    }
+
+    public String getOfferingCity(){
+        return location.getCity();
     }
 }
