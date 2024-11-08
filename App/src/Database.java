@@ -4,6 +4,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +17,10 @@ public class Database {
     private static Database instance = null;
     private static Connection con;
     private static boolean hasData = false;
+
+    // Date and time formatters
+    static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
 
     // Table definitions
     private static final String TABLE_ADMINISTRATOR = "Administrator";
@@ -653,4 +660,63 @@ public class Database {
         }
         return rs;
     }
+
+    public void assignInstructor(int instructorId, int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+        
+
+        //change isAvailableToPublic to 1
+        PreparedStatement prep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = 1 WHERE id = ?;");
+        prep.setInt(1, offeringId);
+        prep.execute();
+
+        PreparedStatement prep1 = con.prepareStatement("UPDATE Offering SET instructorId = ? WHERE id = ?;");
+        prep1.setInt(1, instructorId);
+        prep1.setInt(2, offeringId);
+        prep1.execute();
+
+        System.out.println("Instructor successfully assigned to offering.");
+
+    }
+
+    public Timeslot retrieveOfferingTimeslot(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        //get timeslot from database
+        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
+                       "FROM Offering o " +
+                       "JOIN Timeslot t ON o.timeslotId = t.id " +
+                       "WHERE o.id = ?";
+        
+        PreparedStatement prep = con.prepareStatement(query);
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+
+        //get timeslot attributes
+        if (rs.next()) {
+            List<String> daysList = Arrays.asList(rs.getString("days").split(","));
+            LocalTime startTime = LocalTime.parse(rs.getString("startTime"), timeFormatter);
+            LocalTime endTime = LocalTime.parse(rs.getString("endTime"), timeFormatter);
+            LocalDate startDate = LocalDate.parse(rs.getString("startDate"), dateFormatter);
+            LocalDate endDate = LocalDate.parse(rs.getString("endDate"), dateFormatter);
+
+            Timeslot timeslot = new Timeslot(
+                daysList,
+                startTime,
+                endTime,
+                startDate,
+                endDate
+            );
+            return timeslot;
+        } else {
+            System.out.println("No timeslot found for the given offering ID.");
+            return null;
+        }
+    }
+
+        
 }

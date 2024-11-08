@@ -21,6 +21,8 @@ public class Main {
         try {
             db.getConnection();
 
+            Timeslot timeslot = new Timeslot(Arrays.asList("Monday", "Wednesday"), LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
+
             while (true) {
                 defaultMenu();
                 int userOption;
@@ -417,9 +419,23 @@ public class Main {
         int userInput = key.nextInt();
         key.nextLine(); // To finish the line of nextInt
 
-        //select offering
+        //check if offer fits in instructor's schedule
+        boolean fitsInSchedule = instructor.getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(userInput));
+
+        if(fitsInSchedule){
+            System.out.println("Offering fits in schedule.");
+            //assign offering to instructor
+            db.assignInstructor(instructor.getId(), userInput);
+        }
+        else{
+            System.out.println("Offering does not fit in schedule.");
+            return;
+        }
+
         
     }
+
+
 
     public static List<String> convertStringToList(String str){
         List<String> list = new ArrayList<String>();

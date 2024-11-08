@@ -52,6 +52,10 @@ public class Instructor extends RegisteredUser{
         return cityAvailabilities;
     }
 
+    public Schedule getSchedule(){
+        return schedule;
+    }
+
     public String convertListToString(List<String> list) {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
