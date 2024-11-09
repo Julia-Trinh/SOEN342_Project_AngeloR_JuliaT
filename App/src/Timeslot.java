@@ -2,12 +2,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 
 public class Timeslot {
     private int id;
-    private List<String> days;
+    private String day;
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDate startDate;
@@ -17,22 +15,22 @@ public class Timeslot {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
     Database db = Database.getInstance();
 
-    public Timeslot(List<String> days, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException {
-        this.days = days;
+    //constructor without an id
+    public Timeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException {
+        this.day = day;
         this.startTime = startTime;
         this.endTime = endTime;
         this.startDate = startDate;
         this.endDate = endDate;
 
         // Change all attribute into a string before storing into the db
-        id = db.addTimeslot(String.join(", ", days), startTime.format(timeFormatter), endTime.format(timeFormatter), startDate.format(dateFormatter), endDate.format(dateFormatter));
+        id = db.addTimeslot(day, startTime.format(timeFormatter), endTime.format(timeFormatter), startDate.format(dateFormatter), endDate.format(dateFormatter));
     }
 
-    public Timeslot(int id, String days, String startTime, String endTime, String startDate, String endDate){
+    //constructor with an id - used when retrieving from the database
+    public Timeslot(int id, String day, String startTime, String endTime, String startDate, String endDate){
         this.id = id;
-        
-        // Split the days string by commas and store it as a List
-        this.days = Arrays.asList(days.split(","));
+        this.day = day;
         
         // Convert start and end times to LocalTime
         this.startTime = LocalTime.parse(startTime, timeFormatter);
@@ -47,8 +45,8 @@ public class Timeslot {
         return id;
     }
 
-    public List<String> getDays() {
-        return days;
+    public String getDay() {
+        return day;
     }
 
     public LocalTime getStartTime() {
@@ -87,17 +85,17 @@ public class Timeslot {
         //no overlap = false    |   overlap = true
         if (!(newTimeslot.getEndDate().isBefore(this.startDate) || newTimeslot.getStartDate().isAfter(this.endDate))) {
               
-            //check if the days overlap
-            for (String newDay : newTimeslot.getDays()) {
-                if (this.days.contains(newDay)) {
+            //check if the day overlap
+            
+            if (this.day.equals(newTimeslot.getDay())) {
 
-                    //check if the times overlap
-                    //same logic as overlapping Date
-                    if (!(newTimeslot.getEndTime().isBefore(this.startTime) || newTimeslot.getStartTime().isAfter(this.endTime))) {
-                        return true; //conflict found
-                    }
+                //check if the times overlap
+                //same logic as overlapping Date
+                if (!(newTimeslot.getEndTime().isBefore(this.startTime) || newTimeslot.getStartTime().isAfter(this.endTime))) {
+                    return true; //conflict found
                 }
             }
+            
         }
         return false; //no conflicts found
     }

@@ -21,7 +21,8 @@ public class Main {
         try {
             db.getConnection();
 
-            Timeslot timeslot = new Timeslot(Arrays.asList("Monday", "Wednesday"), LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
+            //test code
+            //Timeslot timeslot = new Timeslot("Monday", LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
 
             while (true) {
                 System.out.println("Welcome to our Lesson booking system!\n" +
@@ -107,7 +108,6 @@ public class Main {
             if (user != null) loggedUser = user;
             if (userOption == 4) break;
         }
-        //key.close();
     }
 
     public static void userRegistration() throws ClassNotFoundException, SQLException {
@@ -118,6 +118,7 @@ public class Main {
                             "4. Return\n");
         System.out.print("Enter choice: ");
         
+        //get user input
         Scanner key = new Scanner(System.in);
         int userOption = key.nextInt();
         key.nextLine();
@@ -125,6 +126,7 @@ public class Main {
             switch (userOption) {
                 case 1:
                     // register as client
+                    //get client information
                     System.out.print("Enter username: ");
                     String clientUsername = key.nextLine();
                     System.out.print("Enter password: ");
@@ -139,6 +141,7 @@ public class Main {
                     key.nextLine();
 
                     if(clientAge < 18){// option to register as a guardian
+                        //get guardian information
                         System.out.print("Client is under 18. Enter guardian information.\n");
                         System.out.print("Enter guardian name: ");
                         String guardianName = key.nextLine();
@@ -147,14 +150,17 @@ public class Main {
                         System.out.print("Enter guardian age: ");
                         int guardianAge = key.nextInt();
                         key.nextLine();
+
+                        //instantiate guardian
                         Guardian guardian = new Guardian(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge, guardianName, relationshipWithYouth, guardianAge);
                     }
-                    else{
+                    else{//client is 18 or older - instantiate client
                         Client client = new Client(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge);
                     }
                     //add to database through constructor
                     System.out.println("Client user added to database.");
                     break;
+                    
                 case 2:
                     // register as instructor
                     System.out.print("Enter username: ");
@@ -175,9 +181,9 @@ public class Main {
                     //add to database through constructor
                     System.out.println("Instructor user added to database.");
                     break;
+
                 case 3:
                     // register as admin
-
                     System.out.print("Enter username: ");
                     String adminUsername = key.nextLine();
                     System.out.print("Enter password: ");
@@ -232,7 +238,7 @@ public class Main {
                      ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
                         while (rs.next()){
                             System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
-                                                rs.getString("activityType") + " classes on " + rs.getString("days") + " from " + rs.getString("startTime") +
+                                                rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
                                                 " to " + rs.getString("endTime") + ", from " + rs.getString("startDate") + " to " + rs.getString("endDate") + ".");
                         }
                         System.out.println("\nPress any key to continue.");
@@ -288,11 +294,11 @@ public class Main {
             System.out.println("Please enter the name of the organization of the location: ");
             String organizationName = key.nextLine();
 
-            if (db.getOrganizationIdFromName(organizationName) == -1) {
+            if (db.retrieveOrganizationIdFromName(organizationName) == -1) {
                 location = new Location(name, activityType, city, new Organization(organizationName));
             } else {
                 location = new Location(name, activityType, city,
-                        new Organization(db.getOrganizationIdFromName(organizationName), organizationName));
+                        new Organization(db.retrieveOrganizationIdFromName(organizationName), organizationName));
             }
             System.out.println("\nNew location added.\n");
         }
@@ -305,9 +311,8 @@ public class Main {
         Timeslot timeslot = null;
         while (timeslot == null){
             System.out.println(
-                    "Please enter the number of days separated by commas (e.g. Mondays,Tuesdays,Wednesdays) that the activity will take place in this location: ");
+                    "Please enter the day of the week that the activity will take place in this location: ");
             String dayString = key.nextLine();
-            List<String> days = Arrays.asList(dayString.split(","));
 
             System.out.println("Please enter the start time of the activity in this format \"HH:mm\": ");
             String startTimeString = key.nextLine();
@@ -325,7 +330,7 @@ public class Main {
             String endDateString = key.nextLine();
             LocalDate endDate = LocalDate.parse(endDateString, dateFormatter);
 
-            timeslot = ((Administrator) loggedUser).createLocationTimeslot(days, startTime, endTime, startDate, endDate, location.getSchedule());
+            timeslot = ((Administrator) loggedUser).createLocationTimeslot(dayString, startTime, endTime, startDate, endDate, location.getSchedule());
         }
         System.out.println("\nTimeslot is valid.\n");
 
@@ -411,13 +416,13 @@ public class Main {
 
         System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
                   "ID", "Activity Type", "Location Name", "Location City", 
-                  "Start Time", "End Time", "Start Date", "End Date", "Days");
+                  "Start Time", "End Time", "Start Date", "End Date", "Day");
 
         // Print values
         while (rs.next()) {
             System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
                             rs.getString("id"), rs.getString("activityType"), rs.getString("locationName"), rs.getString("locationCity"), 
-                            rs.getString("startTime"), rs.getString("endTime"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("days"));
+                            rs.getString("startTime"), rs.getString("endTime"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("day"));
         }
     
         System.out.print("\nEnter choice: ");

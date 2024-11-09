@@ -45,7 +45,7 @@ public class Database {
     }
 
     // SQL creation statements
-        private static final String CREATE_TABLE_ADMINISTRATOR = 
+    private static final String CREATE_TABLE_ADMINISTRATOR = 
         "CREATE TABLE " + TABLE_ADMINISTRATOR + 
         " ("+ 
         "id INTEGER NOT NULL UNIQUE, " + 
@@ -156,7 +156,7 @@ public class Database {
         "id INTEGER NOT NULL UNIQUE, " +  
         "startTime TEXT NOT NULL, " + 
         "endTime TEXT NOT NULL, " +
-        "days TEXT NOT NULL, " +
+        "day TEXT NOT NULL, " +
         "startDate TEXT NOT NULL, " +
         "endDate TEXT NOT NULL," +
         "scheduleId INTEGER, " +
@@ -178,6 +178,18 @@ public class Database {
 
             if (!hasData) {
                 initialize();
+            }
+        }
+    }
+
+    // Method to close the connection
+    public void closeConnection() {
+        if (con != null) {
+            try {
+                con.close();
+                System.out.println("Closed database connection");
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -215,19 +227,14 @@ public class Database {
         res.close();
     }
 
-    // Method to close the connection
-    public void closeConnection() {
-        if (con != null) {
-            try {
-                con.close();
-                System.out.println("Closed database connection");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
-    // Add data to the database and return ID
+    
+    
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ------------------------------ ADD Methods ------------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
     public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
@@ -326,15 +333,15 @@ public class Database {
         return id;
     }
 
-    public int addTimeslot(String days, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
+    public int addTimeslot(String day, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (startTime, endTime, days, startDate, endDate) VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (startTime, endTime, day, startDate, endDate) VALUES (?, ?, ?, ?, ?);");
         prep.setString(1, startTime);
         prep.setString(2, endTime);
-        prep.setString(3, days);
+        prep.setString(3, day);
         prep.setString(4, startDate);
         prep.setString(5, endDate);
         prep.execute();
@@ -458,6 +465,13 @@ public class Database {
         return id;
     }
 
+
+    
+    
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ------------------------------ UPDATE Methods ---------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     public void setScheduleToTimeslot(int timeslotId, int scheduleId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
@@ -480,20 +494,34 @@ public class Database {
         prep.execute();
     }
 
-    public ResultSet displayLocations() throws ClassNotFoundException, SQLException {
+    public void assignInstructor(int instructorId, int offeringId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
+        
 
-        Statement state = con.createStatement();
-        ResultSet rs = state.executeQuery("SELECT id, name, spaceType, city, scheduleId FROM Location");
-        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
-            System.out.println("Currently no Locations found in the database.");
-        }
-        return rs;
+        //change isAvailableToPublic to 1
+        PreparedStatement prep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = 1 WHERE id = ?;");
+        prep.setInt(1, offeringId);
+        prep.execute();
+
+        PreparedStatement prep1 = con.prepareStatement("UPDATE Offering SET instructorId = ? WHERE id = ?;");
+        prep1.setInt(1, instructorId);
+        prep1.setInt(2, offeringId);
+        prep1.execute();
+
+        System.out.println("Instructor successfully assigned to offering.");
     }
 
-    public int getOrganizationIdFromName(String name) throws ClassNotFoundException, SQLException{
+    
+    
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ------------------------------ READ Methods -----------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   
+    public int retrieveOrganizationIdFromName(String name) throws ClassNotFoundException, SQLException{
         if (con == null) {
             getConnection();
         }
@@ -530,42 +558,17 @@ public class Database {
     }
 
     public Schedule retrieveSchedule(int scheduleId) throws SQLException{
-        PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, days, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
+        PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, day, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
         prep.setInt(1, scheduleId);
         ResultSet rs3 = prep.executeQuery();
         List<Timeslot> timeslots = new ArrayList<>();
         while(rs3.next()){
-            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("days"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("startDate"), rs3.getString("endDate")));
+            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("day"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("startDate"), rs3.getString("endDate")));
         }
         Schedule s = new Schedule(scheduleId, timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
 
         return s;
-    }
-
-    public ResultSet displayLessons() throws ClassNotFoundException, SQLException {
-        if (con == null) {
-            getConnection();
-        }
-
-        Statement state = con.createStatement();
-        ResultSet rs = state.executeQuery("SELECT id, activityType, capacity FROM Lesson");
-        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
-            System.out.println("Currently no Lessons found in the database.");
-        }
-        return rs;
-    }
-
-    public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException {
-        if (con == null) {
-            getConnection();
-        }
-
-        PreparedStatement prep = con.prepareStatement("SELECT activityType, capacity FROM Lesson WHERE id = ?");
-        prep.setInt(1, lessonId);
-        ResultSet rs = prep.executeQuery();
-
-        return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
     }
 
     public RegisteredUser retrieveUserFromCredentials(String username, String password, String userType) throws ClassNotFoundException, SQLException {
@@ -631,6 +634,88 @@ public class Database {
         else return null;
     }
 
+    public Timeslot retrieveOfferingTimeslot(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        //get timeslot from database
+        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
+                       "FROM Offering o " +
+                       "JOIN Timeslot t ON o.timeslotId = t.id " +
+                       "WHERE o.id = ?";
+        
+        PreparedStatement prep = con.prepareStatement(query);
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+
+        //get timeslot attributes
+        if (rs.next()) {
+            String day = rs.getString("day");
+            LocalTime startTime = LocalTime.parse(rs.getString("startTime"), timeFormatter);
+            LocalTime endTime = LocalTime.parse(rs.getString("endTime"), timeFormatter);
+            LocalDate startDate = LocalDate.parse(rs.getString("startDate"), dateFormatter);
+            LocalDate endDate = LocalDate.parse(rs.getString("endDate"), dateFormatter);
+
+            Timeslot timeslot = new Timeslot(
+                day,
+                startTime,
+                endTime,
+                startDate,
+                endDate
+            );
+            return timeslot;
+        } else {
+            System.out.println("No timeslot found for the given offering ID.");
+            return null;
+        }
+    }
+
+    public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException {
+    if (con == null) {
+        getConnection();
+    }
+
+    PreparedStatement prep = con.prepareStatement("SELECT activityType, capacity FROM Lesson WHERE id = ?");
+    prep.setInt(1, lessonId);
+    ResultSet rs = prep.executeQuery();
+
+    return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
+}
+
+
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ------------------------------ DISPLAY Methods --------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    public ResultSet displayLessons() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT id, activityType, capacity FROM Lesson");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Lessons found in the database.");
+        }
+        return rs;
+    }    
+
+    public ResultSet displayLocations() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT id, name, spaceType, city FROM Location");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Locations found in the database.");
+        }
+        return rs;
+    }
+
     public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities) throws ClassNotFoundException, SQLException {
 
         if (con == null) {
@@ -643,7 +728,7 @@ public class Database {
         .collect(Collectors.joining(", "));
 
         String query = "SELECT o.id, l.activityType, loc.name AS locationName, loc.city AS locationCity, " +
-        "t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
+        "t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
         "FROM Offering o " +
         "JOIN Lesson l ON o.lessonId = l.id " +
         "JOIN Location loc ON o.locationId = loc.id " +
@@ -745,6 +830,13 @@ public class Database {
         return rs;
     }
 
+
+
+
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // ------------------------------ DELETE Methods ---------------------------
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     public void deleteClient(int clientId) throws SQLException, ClassNotFoundException {
         if (con == null) {
             getConnection();
@@ -775,62 +867,13 @@ public class Database {
         } else {
             System.out.println("\nNo instructor found with ID " + instructorId + ".");
         }
-    } 
-
-    public void assignInstructor(int instructorId, int offeringId) throws ClassNotFoundException, SQLException {
-        if (con == null) {
-            getConnection();
-        }
-        
-
-        //change isAvailableToPublic to 1
-        PreparedStatement prep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = 1 WHERE id = ?;");
-        prep.setInt(1, offeringId);
-        prep.execute();
-
-        PreparedStatement prep1 = con.prepareStatement("UPDATE Offering SET instructorId = ? WHERE id = ?;");
-        prep1.setInt(1, instructorId);
-        prep1.setInt(2, offeringId);
-        prep1.execute();
-
-        System.out.println("Instructor successfully assigned to offering.");
-
     }
-
-    public Timeslot retrieveOfferingTimeslot(int offeringId) throws ClassNotFoundException, SQLException {
-        if (con == null) {
-            getConnection();
-        }
-
-        //get timeslot from database
-        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
-                       "FROM Offering o " +
-                       "JOIN Timeslot t ON o.timeslotId = t.id " +
-                       "WHERE o.id = ?";
-        
-        PreparedStatement prep = con.prepareStatement(query);
-        prep.setInt(1, offeringId);
-        ResultSet rs = prep.executeQuery();
-
-        //get timeslot attributes
-        if (rs.next()) {
-            List<String> daysList = Arrays.asList(rs.getString("days").split(","));
-            LocalTime startTime = LocalTime.parse(rs.getString("startTime"), timeFormatter);
-            LocalTime endTime = LocalTime.parse(rs.getString("endTime"), timeFormatter);
-            LocalDate startDate = LocalDate.parse(rs.getString("startDate"), dateFormatter);
-            LocalDate endDate = LocalDate.parse(rs.getString("endDate"), dateFormatter);
-
-            Timeslot timeslot = new Timeslot(
-                daysList,
-                startTime,
-                endTime,
-                startDate,
-                endDate
-            );
-            return timeslot;
-        } else {
-            System.out.println("No timeslot found for the given offering ID.");
-            return null;
-        }
-    }
+    
 }
+
+        
+
+
+
+   
+
