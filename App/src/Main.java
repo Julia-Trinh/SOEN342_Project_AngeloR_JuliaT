@@ -541,6 +541,8 @@ public class Main {
 
                 System.out.println("We offer a " + rsL.getString("spaceType") + " in " + rsL.getString("name") + " as follows:");
                 while (rsO.next()){
+                    //id
+                    System.out.print(rsO.getString("id") + ".");
                     // Day and dates
                     System.out.print("\t" + rsO.getString("day") + " " + rsO.getString("startDate") + " - "+ rsO.getString("endDate") + ".");
                     // Time

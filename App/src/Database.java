@@ -791,7 +791,8 @@ public class Database {
                                                         Lesson.capacity,
                                                         Lesson.activityType,
                                                         Instructor.name AS instructorName,
-                                                        Offering.isAvailableToPublic
+                                                        Offering.isAvailableToPublic,
+                                                        Offering.id
                                                     FROM Offering
                                                     JOIN Location ON Offering.locationId = Location.id
                                                     JOIN Timeslot ON Offering.timeslotId = Timeslot.id
