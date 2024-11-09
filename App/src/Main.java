@@ -21,9 +21,6 @@ public class Main {
         try {
             db.getConnection();
 
-            //test code
-            //Timeslot timeslot = new Timeslot("Monday", LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
-
             while (true) {
                 System.out.println("Welcome to our Lesson booking system!\n" +
                                     "Please pick one of the following options:\n" +
@@ -536,10 +533,25 @@ public class Main {
     }
 
     public static void browsableOfferings() throws ClassNotFoundException, SQLException {
-        ResultSet rs = db.displayInstructors();
-            while (rs.next()){
-                System.out.println(rs.getString("id") + ". Username: " + rs.getString("username") + " | Name: " + rs.getString("name") +
-                                    " | Phone Number: " + rs.getString("phoneNumber") + " | Age: " + rs.getString("age"));
+        ResultSet rsL = db.displayLocations();
+        System.out.println();
+            while (rsL.next()){
+                ResultSet rsO = db.displayAssignedOfferingsByLocation(rsL.getInt("id"));
+                if (rsO == null) continue;
+
+                System.out.println("We offer a " + rsL.getString("spaceType") + " in " + rsL.getString("name") + " as follows:");
+                while (rsO.next()){
+                    // Day and dates
+                    System.out.print("\t" + rsO.getString("day") + " " + rsO.getString("startDate") + " - "+ rsO.getString("endDate") + ".");
+                    // Time
+                    System.out.print("\t" + rsO.getString("startTime") + " - " + rsO.getString("endTime") + ".");
+                    // Capacity
+                    System.out.print(rsO.getInt("capacity") > 1 ? "\tGroup." : "\tPrivate.");
+                    // Instructor
+                    System.out.print("\tInstructor: " + rsO.getString("instructorName"));
+                    // Availability
+                    System.out.println(rsO.getBoolean("isAvailableToPublic") ? ".\n" : ".\tUNAVAILABLE\n");
+                }
             }
     }
 }

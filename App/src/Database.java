@@ -767,42 +767,46 @@ public class Database {
                                                     JOIN Timeslot ON Offering.timeslotId = Timeslot.id;
                                                     """);
         ResultSet rs = prep.executeQuery();
-        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+        if (!rs.isBeforeFirst()) {
             System.out.println("Currently no Offerings found in the database.");
         }
         return rs;
     }
 
-    public ResultSet displayAssignedOfferings() throws ClassNotFoundException, SQLException {
+    public ResultSet displayAssignedOfferingsByLocation(int locationId) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
-
-        // inner loop: Timeslot.startTime, Timeslot.endTime, Timeslot.startDate, Timeslot.endDate, Lesson.capacity, Instructor.name, Offering.isAvailableToPublic
-        // outer loop: Location.activityType, Location.name, Location.scheduleId
-
+    
         PreparedStatement prep = con.prepareStatement("""
-                                                SELECT 
-                                                    Location.name AS locationName,
-                                                    Location.city,
-                                                    Location.spaceType AS activityType,
-                                                    Timeslot.days,
-                                                    Timeslot.startTime,
-                                                    Timeslot.endTime,
-                                                    Timeslot.startDate,
-                                                    Timeslot.endDate,
-                                                    Offering.isAvailableToPublic
-                                                FROM Offering
-                                                JOIN Location ON Offering.locationId = Location.id
-                                                JOIN Timeslot ON Offering.timeslotId = Timeslot.id
-                                                WHERE Offering.instructorId IS NOT NULL;
-                                                """);
+                                                    SELECT 
+                                                        Location.name AS locationName,
+                                                        Location.city,
+                                                        Location.spaceType,
+                                                        Timeslot.day,
+                                                        Timeslot.startTime,
+                                                        Timeslot.endTime,
+                                                        Timeslot.startDate,
+                                                        Timeslot.endDate,
+                                                        Lesson.capacity,
+                                                        Lesson.activityType,
+                                                        Instructor.name AS instructorName,
+                                                        Offering.isAvailableToPublic
+                                                    FROM Offering
+                                                    JOIN Location ON Offering.locationId = Location.id
+                                                    JOIN Timeslot ON Offering.timeslotId = Timeslot.id
+                                                    JOIN Lesson ON Offering.lessonId = Lesson.id
+                                                    JOIN Instructor ON Offering.instructorId = Instructor.id
+                                                    WHERE Offering.instructorId IS NOT NULL AND Offering.locationId = ?;
+                                                    """);
+        prep.setInt(1, locationId);
         ResultSet rs = prep.executeQuery();
-        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
-            System.out.println("Currently no Offerings found in the database.");
+        if (!rs.isBeforeFirst()) {
+            return null;
         }
         return rs;
     }
+    
 
     public ResultSet displayClients() throws ClassNotFoundException, SQLException {
         if (con == null) {
