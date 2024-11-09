@@ -156,7 +156,7 @@ public class Database {
         "id INTEGER NOT NULL UNIQUE, " +  
         "startTime TEXT NOT NULL, " + 
         "endTime TEXT NOT NULL, " +
-        "days TEXT NOT NULL, " +
+        "day TEXT NOT NULL, " +
         "startDate TEXT NOT NULL, " +
         "endDate TEXT NOT NULL," +
         "scheduleId INTEGER, " +
@@ -326,15 +326,15 @@ public class Database {
         return id;
     }
 
-    public int addTimeslot(String days, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
+    public int addTimeslot(String day, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
         if (con == null) {
             getConnection();
         }
     
-        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (startTime, endTime, days, startDate, endDate) VALUES (?, ?, ?, ?, ?);");
+        PreparedStatement prep = con.prepareStatement("INSERT INTO Timeslot (startTime, endTime, day, startDate, endDate) VALUES (?, ?, ?, ?, ?);");
         prep.setString(1, startTime);
         prep.setString(2, endTime);
-        prep.setString(3, days);
+        prep.setString(3, day);
         prep.setString(4, startDate);
         prep.setString(5, endDate);
         prep.execute();
@@ -530,12 +530,12 @@ public class Database {
     }
 
     public Schedule retrieveSchedule(int scheduleId) throws SQLException{
-        PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, days, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
+        PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, day, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
         prep.setInt(1, scheduleId);
         ResultSet rs3 = prep.executeQuery();
         List<Timeslot> timeslots = new ArrayList<>();
         while(rs3.next()){
-            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("days"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("startDate"), rs3.getString("endDate")));
+            timeslots.add(new Timeslot(rs3.getInt("id"), rs3.getString("day"), rs3.getString("startTime"), rs3.getString("endTime"), rs3.getString("startDate"), rs3.getString("endDate")));
         }
         Schedule s = new Schedule(scheduleId, timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
@@ -644,7 +644,7 @@ public class Database {
         .collect(Collectors.joining(", "));
 
         String query = "SELECT o.id, l.activityType, loc.name AS locationName, loc.city AS locationCity, " +
-        "t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
+        "t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
         "FROM Offering o " +
         "JOIN Lesson l ON o.lessonId = l.id " +
         "JOIN Location loc ON o.locationId = loc.id " +
@@ -734,7 +734,7 @@ public class Database {
         }
 
         //get timeslot from database
-        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.days " +
+        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
                        "FROM Offering o " +
                        "JOIN Timeslot t ON o.timeslotId = t.id " +
                        "WHERE o.id = ?";
@@ -745,14 +745,14 @@ public class Database {
 
         //get timeslot attributes
         if (rs.next()) {
-            List<String> daysList = Arrays.asList(rs.getString("days").split(","));
+            String day = rs.getString("day");
             LocalTime startTime = LocalTime.parse(rs.getString("startTime"), timeFormatter);
             LocalTime endTime = LocalTime.parse(rs.getString("endTime"), timeFormatter);
             LocalDate startDate = LocalDate.parse(rs.getString("startDate"), dateFormatter);
             LocalDate endDate = LocalDate.parse(rs.getString("endDate"), dateFormatter);
 
             Timeslot timeslot = new Timeslot(
-                daysList,
+                day,
                 startTime,
                 endTime,
                 startDate,
@@ -763,5 +763,29 @@ public class Database {
             System.out.println("No timeslot found for the given offering ID.");
             return null;
         }
+    }
+
+    public ResultSet displayOfferings() throws ClassNotFoundException, SQLException { //need to review this method 
+        if (con == null) {
+            getConnection();
+        }
+        // Get Offering data
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT * FROM Offering");
+        return rs;
+
+    }
+
+    public ResultSet displayClients() throws ClassNotFoundException, SQLException { //need to review this method
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT * FROM Client;");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Clients found in the database.");
+        }
+        return rs;
     }
 }
