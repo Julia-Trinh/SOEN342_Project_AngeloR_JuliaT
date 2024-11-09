@@ -14,7 +14,7 @@ public class Main {
     static Database db = Database.getInstance();
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
     static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
-    static RegisteredUser loggedUser = new Administrator(0, null, null, "Julia", 0); //null;
+    static RegisteredUser loggedUser = null;
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
@@ -24,7 +24,12 @@ public class Main {
             Timeslot timeslot = new Timeslot(Arrays.asList("Monday", "Wednesday"), LocalTime.parse("10:00", timeFormatter), LocalTime.parse("12:00", timeFormatter), LocalDate.parse("January 1, 2022", dateFormatter), LocalDate.parse("February 1, 2022", dateFormatter));
 
             while (true) {
-                defaultMenu();
+                System.out.println("Welcome to our Lesson booking system!\n" +
+                                    "Please pick one of the following options:\n" +
+                                    "1. Login\n" +
+                                    "2. Register\n" +
+                                    "3. Browse lessons\n" +
+                                    "4. Exit\n");
                 int userOption;
                 
                 System.out.print("Enter choice: ");
@@ -34,19 +39,15 @@ public class Main {
                 switch (userOption) {
                     case 1: // login
                         userLogin();
-                        if (loggedUser instanceof Client) ;
+                        if (loggedUser instanceof Client) clientMenu();
                         else if (loggedUser instanceof Instructor) instructorMenu();
                         else if (loggedUser instanceof Administrator) adminMenu();
                         break;
                     case 2: // register
-                        try {
-                            userRegistration();
-                        } catch (ClassNotFoundException | SQLException e) {
-                            e.printStackTrace();
-                        }
+                        userRegistration();
                         break;
                     case 3: // browse offerings
-                        //browsableOfferings(); -> need to add
+                        browsableOfferings();
                         break;
                     case 4: // exit
                         System.out.println("Exiting the menu. \nEnd of program.");
@@ -66,15 +67,6 @@ public class Main {
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void defaultMenu() {
-        System.out.println("Welcome to our Lesson booking system!\n" +
-                "Please pick one of the following options:\n" +
-                "1. Login\n" +
-                "2. Register\n" +
-                "3. Browse lessons\n" +
-                "4. Exit\n");
     }
 
     public static void userLogin() throws ClassNotFoundException, SQLException{
@@ -214,8 +206,9 @@ public class Main {
 
     public static void adminMenu() throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
+        System.out.println("\nHello " + loggedUser.getName() + ",");
         while(true){
-            System.out.println("\nHello " + loggedUser.getName() + ", please chose what you want to do as an admin:\n" +
+            System.out.println("Please chose what you want to do as an admin:\n" +
                     "1. View all bookings.\n" +
                     "2. Manage bookings.\n" +
                     "3. View all offerings.\n" +
@@ -236,7 +229,7 @@ public class Main {
                     // TO-DO
                     break;
                 case 3:
-                     ResultSet rs = db.displayOfferings();
+                     ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
                         while (rs.next()){
                             System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
                                                 rs.getString("activityType") + " classes on " + rs.getString("days") + " from " + rs.getString("startTime") +
@@ -252,13 +245,16 @@ public class Main {
                     manageAccounts();
                     break;
                 case 6:
+                    loggedUser = null;
                     System.out.println("Logging out...");
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
+            if (userOption == 6) break;
         }
+        key.close();
     }
 
     public static void addOffering() throws ClassNotFoundException, SQLException {
@@ -397,6 +393,7 @@ public class Main {
                     assignOffering();
                     break;
                 case 4:
+                    loggedUser = null;
                     System.out.println("Logging out...");
                     return;
                 default:
@@ -442,8 +439,6 @@ public class Main {
 
         
     }
-
-
 
     public static List<String> convertStringToList(String str){
         List<String> list = new ArrayList<String>();
@@ -498,5 +493,48 @@ public class Main {
             }
             if (accountDeletionOption == 0) break;
         } while (userOption != 1 && userOption != 2);
+    }
+
+    public static void clientMenu() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("\nHello " + loggedUser.getName() + ",");
+        while(true){
+            System.out.println("Please chose what you want to do as a client:\n" +
+                    "1. Make a booking.\n" +
+                    "2. Manage my bookings.\n" +
+                    "3. Logout.");
+            
+            int userOption;
+
+            System.out.print("Enter choice: ");
+            userOption = key.nextInt();
+            key.nextLine();
+            switch (userOption) {
+                case 1:
+                    browsableOfferings();
+
+                    break;
+                case 2:
+                    // TO-DO
+                    break;
+                case 3:
+                    loggedUser = null;
+                    System.out.println("Logging out...");
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    break;
+            }
+            if (userOption == 6) break;
+        }
+        key.close();
+    }
+
+    public static void browsableOfferings() throws ClassNotFoundException, SQLException {
+        ResultSet rs = db.displayInstructors();
+            while (rs.next()){
+                System.out.println(rs.getString("id") + ". Username: " + rs.getString("username") + " | Name: " + rs.getString("name") +
+                                    " | Phone Number: " + rs.getString("phoneNumber") + " | Age: " + rs.getString("age"));
+            }
     }
 }

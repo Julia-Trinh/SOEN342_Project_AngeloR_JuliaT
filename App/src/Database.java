@@ -486,7 +486,7 @@ public class Database {
         }
 
         Statement state = con.createStatement();
-        ResultSet rs = state.executeQuery("SELECT id, name, spaceType, city FROM Location");
+        ResultSet rs = state.executeQuery("SELECT id, name, spaceType, city, scheduleId FROM Location");
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Locations found in the database.");
         }
@@ -637,7 +637,6 @@ public class Database {
             getConnection();
         }
 
-
         // Convert list to a single string
         String cityList = cityAvailabilities.stream()
         .map(city -> "'" + city + "'")
@@ -659,6 +658,76 @@ public class Database {
 
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no unassigned Offerings found in the database.");
+        }
+        return rs;
+    }
+
+    public ResultSet displayOfferings() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("""
+                                                    SELECT 
+                                                        Location.name AS locationName,
+                                                        Location.spaceType AS activityType,
+                                                        Timeslot.days,
+                                                        Timeslot.startTime,
+                                                        Timeslot.endTime,
+                                                        Timeslot.startDate,
+                                                        Timeslot.endDate,
+                                                        Offering.isAvailableToPublic
+                                                    FROM Offering
+                                                    JOIN Location ON Offering.locationId = Location.id
+                                                    JOIN Timeslot ON Offering.timeslotId = Timeslot.id;
+                                                    """);
+        ResultSet rs = prep.executeQuery();
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Offerings found in the database.");
+        }
+        return rs;
+    }
+
+    public ResultSet displayAssignedOfferings() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        // inner loop: Timeslot.startTime, Timeslot.endTime, Timeslot.startDate, Timeslot.endDate, Lesson.capacity, Instructor.name, Offering.isAvailableToPublic
+        // outer loop: Location.activityType, Location.name, Location.scheduleId
+
+        PreparedStatement prep = con.prepareStatement("""
+                                                SELECT 
+                                                    Location.name AS locationName,
+                                                    Location.city,
+                                                    Location.spaceType AS activityType,
+                                                    Timeslot.days,
+                                                    Timeslot.startTime,
+                                                    Timeslot.endTime,
+                                                    Timeslot.startDate,
+                                                    Timeslot.endDate,
+                                                    Offering.isAvailableToPublic
+                                                FROM Offering
+                                                JOIN Location ON Offering.locationId = Location.id
+                                                JOIN Timeslot ON Offering.timeslotId = Timeslot.id
+                                                WHERE Offering.instructorId IS NOT NULL;
+                                                """);
+        ResultSet rs = prep.executeQuery();
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Offerings found in the database.");
+        }
+        return rs;
+    }
+
+    public ResultSet displayClients() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+
+        Statement state = con.createStatement();
+        ResultSet rs = state.executeQuery("SELECT * FROM Client;");
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Clients found in the database.");
         }
         return rs;
     }
