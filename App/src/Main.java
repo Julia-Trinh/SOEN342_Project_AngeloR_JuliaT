@@ -298,11 +298,11 @@ public class Main {
             System.out.println("Please enter the name of the organization of the location: ");
             String organizationName = key.nextLine();
 
-            if (db.getOrganizationIdFromName(organizationName) == -1) {
+            if (db.retrieveOrganizationIdFromName(organizationName) == -1) {
                 location = new Location(name, activityType, city, new Organization(organizationName));
             } else {
                 location = new Location(name, activityType, city,
-                        new Organization(db.getOrganizationIdFromName(organizationName), organizationName));
+                        new Organization(db.retrieveOrganizationIdFromName(organizationName), organizationName));
             }
             System.out.println("\nNew location added.\n");
         }
