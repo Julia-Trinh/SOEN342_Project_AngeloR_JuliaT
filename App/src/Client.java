@@ -37,6 +37,10 @@ public class Client extends RegisteredUser{
         return bookings;
     }
 
+    public Schedule getSchedule(){
+        return schedule;
+    }
+
     public void addBooking(Offering offering) throws ClassNotFoundException, SQLException{
         if(offering.getIsAvailableToPublic()){
             //TO-DO: check Client's schedule

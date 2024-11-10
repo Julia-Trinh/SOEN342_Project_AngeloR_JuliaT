@@ -29,7 +29,6 @@ public class Main {
                                     "3. Browse lessons\n" +
                                     "4. Exit\n");
                 int userOption;
-                
                 System.out.print("Enter choice: ");
                 userOption = key.nextInt();
                 key.nextLine();
@@ -46,9 +45,11 @@ public class Main {
                         break;
                     case 3: // browse offerings
                         browsableOfferings();
+                        System.out.println("Press Enter to continue...");
+                        key.nextLine();
                         break;
                     case 4: // exit
-                        System.out.println("Exiting the menu. \nEnd of program.");
+                        System.out.println("\nExiting the menu. \nEnd of program.");
                         break;
             
                     default:
@@ -68,7 +69,7 @@ public class Main {
     }
 
     public static void userLogin() throws ClassNotFoundException, SQLException{
-        System.out.println("Please pick one of the following options:\n" + 
+        System.out.println("\nPlease pick one of the following options:\n" + 
                             "1. Login as Client\n" +
                             "2. Login as Instructor\n" +
                             "3. Login as Admin\n" + 
@@ -149,10 +150,10 @@ public class Main {
                         key.nextLine();
 
                         //instantiate guardian
-                        Guardian guardian = new Guardian(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge, guardianName, relationshipWithYouth, guardianAge);
+                        new Guardian(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge, guardianName, relationshipWithYouth, guardianAge);
                     }
                     else{//client is 18 or older - instantiate client
-                        Client client = new Client(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge);
+                        new Client(clientUsername, clientPassword, clientName, clientPhoneNumber, clientAge);
                     }
                     //add to database through constructor
                     System.out.println("Client user added to database.");
@@ -220,7 +221,6 @@ public class Main {
                     "6. Logout.");
             
             int userOption;
-
             System.out.print("Enter choice: ");
             userOption = key.nextInt();
             key.nextLine();
@@ -238,7 +238,7 @@ public class Main {
                                                 rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
                                                 " to " + rs.getString("endTime") + ", from " + rs.getString("startDate") + " to " + rs.getString("endDate") + ".");
                         }
-                        System.out.println("\nPress any key to continue.");
+                        System.out.println("\nPress Enter to continue...");
                         key.nextLine();
                     break;
                 case 4:
@@ -366,7 +366,9 @@ public class Main {
         Offering offering = new Offering(lesson, location, timeslot);
         lesson.addOffering(offering);
         System.out.println("\nNew offering created.\n");
-
+        System.out.println("Press Enter to continue...");
+        key.nextLine();
+        key.close();
         
     }
 
@@ -409,7 +411,7 @@ public class Main {
         Scanner key = new Scanner(System.in);
         System.out.println("Please pick an offering to assign to yourself by entering their ID.");
         Instructor instructor = (Instructor) loggedUser;
-        ResultSet rs = db.displayUnassignedOfferings(instructor.getCityAvailabilities());
+        ResultSet rs = db.displayUnassignedOfferings(instructor.getCityAvailabilities(), instructor.getActivityType());
 
         System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
                   "ID", "Activity Type", "Location Name", "Location City", 
@@ -436,10 +438,10 @@ public class Main {
         }
         else{
             System.out.println("Offering does not fit in schedule.");
+            key.close();
             return;
         }
-
-        
+        key.close();
     }
 
     public static List<String> convertStringToList(String str){
@@ -514,10 +516,17 @@ public class Main {
             switch (userOption) {
                 case 1:
                     browsableOfferings();
-
+                    System.out.print("Please pick a lesson by entering their ID: ");
+                    int offeringId = key.nextInt();
+                    key.nextLine();
+                    if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
+                        db.addBooking(loggedUser.getId(), offeringId);
+                        System.out.println("\nBooking has been successful!");
+                    }
+                    else System.out.println("\nError. Timeslots overlapping.");
                     break;
                 case 2:
-                    // TO-DO
+                    // TO-DO: manage bookings
                     break;
                 case 3:
                     loggedUser = null;
@@ -527,7 +536,7 @@ public class Main {
                     System.out.println("Invalid option. Please try again.");
                     break;
             }
-            if (userOption == 6) break;
+            if (userOption == 3) break;
         }
         key.close();
     }
@@ -544,7 +553,7 @@ public class Main {
                     //id
                     System.out.print(rsO.getString("id") + ".");
                     // Day and dates
-                    System.out.print("\t" + rsO.getString("day") + " " + rsO.getString("startDate") + " - "+ rsO.getString("endDate") + ".");
+                    System.out.print(rsO.getString("day") + " " + rsO.getString("startDate") + " - "+ rsO.getString("endDate") + ".");
                     // Time
                     System.out.print("\t" + rsO.getString("startTime") + " - " + rsO.getString("endTime") + ".");
                     // Capacity
@@ -552,8 +561,9 @@ public class Main {
                     // Instructor
                     System.out.print("\tInstructor: " + rsO.getString("instructorName"));
                     // Availability
-                    System.out.println(rsO.getBoolean("isAvailableToPublic") ? ".\n" : ".\tUNAVAILABLE\n");
+                    System.out.println(rsO.getBoolean("isAvailableToPublic") ? "." : ".\tUNAVAILABLE");
                 }
+                System.out.println();
             }
     }
 }

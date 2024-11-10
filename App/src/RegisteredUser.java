@@ -12,6 +12,10 @@ public class RegisteredUser {
         this.phoneNumber = phoneNumber;
     }
 
+    public int getId(){
+        return id;
+    }
+
     public String getUsername() {
         return username;
     }

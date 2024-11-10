@@ -513,6 +513,16 @@ public class Database {
         System.out.println("Instructor successfully assigned to offering.");
     }
 
+    public void setOfferingPublicAvailability(int id, boolean availability) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = ? WHERE id = ?;");
+        prep.setBoolean(1, availability);
+        prep.setInt(2, id);
+        prep.execute();
+    }
     
     
 
@@ -557,7 +567,7 @@ public class Database {
         return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
     }
 
-    public Schedule retrieveSchedule(int scheduleId) throws SQLException{
+    public Schedule retrieveSchedule(int scheduleId) throws ClassNotFoundException, SQLException {
         PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, day, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
         prep.setInt(1, scheduleId);
         ResultSet rs3 = prep.executeQuery();
@@ -716,7 +726,7 @@ public class Database {
         return rs;
     }
 
-    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities) throws ClassNotFoundException, SQLException {
+    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException {
 
         if (con == null) {
             getConnection();
@@ -735,7 +745,8 @@ public class Database {
         "JOIN Timeslot t ON o.timeslotId = t.id " +
         "WHERE o.instructorId IS NULL " +
         "AND o.isAvailableToPublic = 0 " +   //must be unassigned
-        "AND loc.city IN (" + cityList + ")";
+        "AND loc.city IN (" + cityList + ")" +
+        "AND l.activityType = ?";
 
         Statement state = con.createStatement();
         ResultSet rs = state.executeQuery(query);

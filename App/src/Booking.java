@@ -2,7 +2,6 @@ import java.sql.SQLException;
 
 public class Booking {
     private int id;
-    private BookingDetails bookingDetails;
     private Client client;
     private Offering offering;
     Database db = Database.getInstance();
@@ -10,7 +9,6 @@ public class Booking {
     public Booking(Client client, Offering offering) throws ClassNotFoundException, SQLException {
         this.client = client;
         this.offering = offering;
-        this.bookingDetails = new BookingDetails();
 
         // Add to associated classes
         client.getBookings().add(this);
