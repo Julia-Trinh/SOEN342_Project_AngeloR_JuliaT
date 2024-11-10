@@ -257,7 +257,6 @@ public class Main {
             }
             if (userOption == 6) break;
         }
-        key.close();
     }
 
     public static void addOffering() throws ClassNotFoundException, SQLException {
@@ -368,8 +367,6 @@ public class Main {
         System.out.println("\nNew offering created.\n");
         System.out.println("Press Enter to continue...");
         key.nextLine();
-        key.close();
-        
     }
 
     public static void instructorMenu() throws ClassNotFoundException, SQLException {
@@ -438,10 +435,8 @@ public class Main {
         }
         else{
             System.out.println("Offering does not fit in schedule.");
-            key.close();
             return;
         }
-        key.close();
     }
 
     public static List<String> convertStringToList(String str){
@@ -519,11 +514,16 @@ public class Main {
                     System.out.print("Please pick a lesson by entering their ID: ");
                     int offeringId = key.nextInt();
                     key.nextLine();
-                    if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
-                        db.addBooking(loggedUser.getId(), offeringId);
-                        System.out.println("\nBooking has been successful!");
+                    if (db.checkOfferingAvailability(offeringId)){
+                        if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
+                            db.addBooking(loggedUser.getId(), offeringId);
+                            System.out.println("\nBooking has been successful!");
+                        }
+                        else System.out.println("\nError. Timeslots overlapping.");
                     }
-                    else System.out.println("\nError. Timeslots overlapping.");
+                    else {
+                        System.out.println("\nLesson unavailable. Please try again.\n");
+                    }
                     break;
                 case 2:
                     // TO-DO: manage bookings
@@ -538,7 +538,6 @@ public class Main {
             }
             if (userOption == 3) break;
         }
-        key.close();
     }
 
     public static void browsableOfferings() throws ClassNotFoundException, SQLException {
@@ -550,18 +549,23 @@ public class Main {
 
                 System.out.println("We offer a " + rsL.getString("spaceType") + " in " + rsL.getString("name") + " as follows:");
                 while (rsO.next()){
-                    //id
-                    System.out.print(rsO.getString("id") + ".");
+                    // id
+                    String id = String.format("%-4s", rsO.getString("id"));
                     // Day and dates
-                    System.out.print(rsO.getString("day") + " " + rsO.getString("startDate") + " - "+ rsO.getString("endDate") + ".");
+                    String dayAndDates = String.format("%-48s", rsO.getString("day") + " " + rsO.getString("startDate") + " - " + rsO.getString("endDate") + ". ");
                     // Time
-                    System.out.print("\t" + rsO.getString("startTime") + " - " + rsO.getString("endTime") + ".");
+                    String time = String.format("%-15s", rsO.getString("startTime") + " - " + rsO.getString("endTime"));
                     // Capacity
-                    System.out.print(rsO.getInt("capacity") > 1 ? "\tGroup." : "\tPrivate.");
+                    String capacity = rsO.getInt("capacity") > 1 ? "Group" : "Private";
+                    String capacityFormatted = String.format("%-9s", capacity); 
                     // Instructor
-                    System.out.print("\tInstructor: " + rsO.getString("instructorName"));
+                    String instructor = String.format("%-15s", rsO.getString("instructorName"));
                     // Availability
-                    System.out.println(rsO.getBoolean("isAvailableToPublic") ? "." : ".\tUNAVAILABLE");
+                    String availability = rsO.getBoolean("isAvailableToPublic") ? "" : "UNAVAILABLE";
+                    String availabilityFormatted = String.format("%-15s", availability);
+
+                    // Print the formatted output
+                    System.out.println(id + dayAndDates + time + capacityFormatted + "Instructor: " + instructor + availabilityFormatted);
                 }
                 System.out.println();
             }

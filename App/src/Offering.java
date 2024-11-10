@@ -47,7 +47,6 @@ public class Offering {
 
     public void setIsAvailableToPublic(boolean availability) throws ClassNotFoundException, SQLException{
         this.isAvailableToPublic = availability;
-        db.setOfferingPublicAvailability(this.id, availability);
     }
 
     public Location getLocation(){
