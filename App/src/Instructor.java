@@ -67,4 +67,7 @@ public class Instructor extends RegisteredUser{
         return result.toString();
     }
 
+    public String getActivityType(){
+        return activityType;
+    }
 }

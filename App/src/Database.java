@@ -443,6 +443,30 @@ public class Database {
             }
         }
 
+        // Retrieve the number of bookings for the offering
+        PreparedStatement countBookingsPrep = con.prepareStatement("SELECT COUNT(*) FROM Booking WHERE offeringId = ?");
+        countBookingsPrep.setInt(1, offeringId);
+        ResultSet countResult = countBookingsPrep.executeQuery();
+        int numberOfBookings = 0;
+        if (countResult.next()) {
+            numberOfBookings = countResult.getInt(1);
+        }
+    
+        // Retrieve the capacity of the lesson associated with the offering
+        PreparedStatement lessonCapacityPrep = con.prepareStatement("SELECT l.capacity FROM Lesson l " +
+            "JOIN Offering o ON l.id = o.lessonId WHERE o.id = ?");
+        lessonCapacityPrep.setInt(1, offeringId);
+        ResultSet lessonResult = lessonCapacityPrep.executeQuery();
+        int lessonCapacity = 0;
+        if (lessonResult.next()) {
+            lessonCapacity = lessonResult.getInt("capacity");
+        }
+    
+        // Check if the number of bookings equals the lesson's capacity
+        if (numberOfBookings == lessonCapacity) {
+            setOfferingPublicAvailability(offeringId, false);
+        }
+
         return id;
     }
 
@@ -513,6 +537,16 @@ public class Database {
         System.out.println("Instructor successfully assigned to offering.");
     }
 
+    public void setOfferingPublicAvailability(int id, boolean availability) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = ? WHERE id = ?;");
+        prep.setBoolean(1, availability);
+        prep.setInt(2, id);
+        prep.execute();
+    }
     
     
 
@@ -557,7 +591,7 @@ public class Database {
         return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
     }
 
-    public Schedule retrieveSchedule(int scheduleId) throws SQLException{
+    public Schedule retrieveSchedule(int scheduleId) throws ClassNotFoundException, SQLException {
         PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, day, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
         prep.setInt(1, scheduleId);
         ResultSet rs3 = prep.executeQuery();
@@ -672,18 +706,34 @@ public class Database {
     }
 
     public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException {
-    if (con == null) {
-        getConnection();
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("SELECT activityType, capacity FROM Lesson WHERE id = ?");
+        prep.setInt(1, lessonId);
+        ResultSet rs = prep.executeQuery();
+
+        return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
     }
 
-    PreparedStatement prep = con.prepareStatement("SELECT activityType, capacity FROM Lesson WHERE id = ?");
-    prep.setInt(1, lessonId);
-    ResultSet rs = prep.executeQuery();
-
-    return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
-}
-
-
+    public boolean checkOfferingAvailability(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT isAvailableToPublic FROM Offering WHERE id = ?");
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (rs.next()) {
+            return rs.getBoolean("isAvailableToPublic");
+        } else {
+            System.out.println("Offering with ID " + offeringId + " not found.");
+            return false;
+        }
+    }
+    
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -716,7 +766,7 @@ public class Database {
         return rs;
     }
 
-    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities) throws ClassNotFoundException, SQLException {
+    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException {
 
         if (con == null) {
             getConnection();
@@ -735,15 +785,18 @@ public class Database {
         "JOIN Timeslot t ON o.timeslotId = t.id " +
         "WHERE o.instructorId IS NULL " +
         "AND o.isAvailableToPublic = 0 " +   //must be unassigned
-        "AND loc.city IN (" + cityList + ")";
+        "AND loc.city IN (" + cityList + ")" +
+        "AND l.activityType = ?";
 
-        Statement state = con.createStatement();
-        ResultSet rs = state.executeQuery(query);
-
-
-        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+        PreparedStatement prep = con.prepareStatement(query);
+        prep.setString(1, activityType);
+    
+        ResultSet rs = prep.executeQuery();
+    
+        if (!rs.isBeforeFirst()) {
             System.out.println("Currently no unassigned Offerings found in the database.");
         }
+    
         return rs;
     }
 
