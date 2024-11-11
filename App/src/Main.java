@@ -225,14 +225,14 @@ public class Main {
             userOption = key.nextInt();
             key.nextLine();
             switch (userOption) {
-                case 1:
-                    // TO-DO
+                case 1://view all bookings
+                    db.displayAllBookings();
                     break;
-                case 2:
-                    // TO-DO
+                case 2://manage bookings
+                    //
                     break;
                 case 3:
-                     ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
+                    ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
                         while (rs.next()){
                             System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
                                                 rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
@@ -447,6 +447,8 @@ public class Main {
         }
         return list;
     }
+
+    
 
     public static void manageAccounts() throws ClassNotFoundException, SQLException{
         Scanner key = new Scanner(System.in);

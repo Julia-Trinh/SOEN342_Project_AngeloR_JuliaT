@@ -888,7 +888,31 @@ public class Database {
         return rs;
     }
 
-
+    public void displayAllBookings() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        String query = "SELECT b.id AS bookingId, c.name AS clientName, l.activityType AS lessonName, loc.name AS locationName " +
+                       "FROM Booking b " +
+                       "JOIN Client c ON b.clientId = c.id " +
+                       "JOIN Offering o ON b.offeringId = o.id " +
+                       "JOIN Lesson l ON o.lessonId = l.id " +
+                       "JOIN Location loc ON o.locationId = loc.id";
+    
+        PreparedStatement prep = con.prepareStatement(query);
+        ResultSet rs = prep.executeQuery();
+    
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Bookings found in the database.");
+        } else {
+            System.out.println("Bookings:");
+            System.out.printf("%-10s %-20s %-20s %-20s%n", "Booking ID", "Client Name", "Lesson Name", "Location Name");
+            while (rs.next()) {
+                System.out.println("Booking ID: " + rs.getInt("bookingId") + ", Client: " + rs.getString("clientName") + ", Lesson: " + rs.getString("lessonName") + ", Location: " + rs.getString("locationName"));
+            }
+        }
+    }
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
