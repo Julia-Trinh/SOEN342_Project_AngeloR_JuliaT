@@ -990,6 +990,24 @@ public class Database {
             System.out.println("\nNo instructor found with ID " + instructorId + ".");
         }
     }
+
+    public void deleteBooking(int bookingId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("DELETE FROM Booking WHERE id = ?;");
+        prep.setInt(1, bookingId);
+
+        
+
+        int rowsAffected = prep.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("\nBooking with ID " + bookingId + " has been deleted.");
+        } else {
+            System.out.println("\nNo booking found with ID " + bookingId + ".");
+        }
+    }
     
 }
 

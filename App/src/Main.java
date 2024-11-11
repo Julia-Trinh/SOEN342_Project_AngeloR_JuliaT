@@ -229,7 +229,7 @@ public class Main {
                     db.displayAllBookings();
                     break;
                 case 2://manage bookings
-                    //
+                    manageBookingsAdmin();
                     break;
                 case 3:
                     ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
@@ -367,6 +367,19 @@ public class Main {
         System.out.println("\nNew offering created.\n");
         System.out.println("Press Enter to continue...");
         key.nextLine();
+    }
+
+    public static void manageBookingsAdmin() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Which booking would you like to delete?");
+        db.displayAllBookings();
+        System.out.print("Enter the ID of the booking you would like to delete: ");
+        int bookingId = key.nextInt();
+        key.nextLine();
+
+        db.deleteBooking(bookingId);
+
+
     }
 
     public static void instructorMenu() throws ClassNotFoundException, SQLException {
