@@ -734,6 +734,46 @@ public class Database {
         }
     }
     
+    public int retrieveOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT COUNT(*) FROM Booking WHERE offeringId = ?");
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (rs.next()) {
+            return rs.getInt(1);
+        } else {
+            System.out.println("Offering with ID " + offeringId + " not found.");
+            return -1;
+        }
+    }
+
+    public int retrieveLessonCapacity(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT l.capacity FROM Lesson l " +
+            "JOIN Offering o ON l.id = o.lessonId WHERE o.id = ?");
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (rs.next()) {
+            return rs.getInt("capacity");
+        } else {
+            System.out.println("Offering with ID " + offeringId + " not found.");
+            return -1;
+        }
+    }
+
+    public boolean checkOfferingOccupancy(int OfferingId) throws ClassNotFoundException, SQLException{
+        int offeringOccupancy = retrieveOfferingOccupancy(OfferingId);
+        int lessonCapacity = retrieveLessonCapacity(OfferingId);
+        return offeringOccupancy < lessonCapacity; //return true if there is space available
+    }
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -888,7 +928,31 @@ public class Database {
         return rs;
     }
 
-
+    public void displayAllBookings() throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        String query = "SELECT b.id AS bookingId, c.name AS clientName, l.activityType AS lessonName, loc.name AS locationName " +
+                       "FROM Booking b " +
+                       "JOIN Client c ON b.clientId = c.id " +
+                       "JOIN Offering o ON b.offeringId = o.id " +
+                       "JOIN Lesson l ON o.lessonId = l.id " +
+                       "JOIN Location loc ON o.locationId = loc.id";
+    
+        PreparedStatement prep = con.prepareStatement(query);
+        ResultSet rs = prep.executeQuery();
+    
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Bookings found in the database.");
+        } else {
+            System.out.println("Bookings:");
+            System.out.printf("%-10s %-20s %-20s %-20s%n", "Booking ID", "Client Name", "Lesson Name", "Location Name");
+            while (rs.next()) {
+                System.out.println("Booking ID: " + rs.getInt("bookingId") + ", Client: " + rs.getString("clientName") + ", Lesson: " + rs.getString("lessonName") + ", Location: " + rs.getString("locationName"));
+            }
+        }
+    }
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -924,6 +988,62 @@ public class Database {
             System.out.println("\nInstructor with ID " + instructorId + " has been deleted.");
         } else {
             System.out.println("\nNo instructor found with ID " + instructorId + ".");
+        }
+    }
+
+    public void deleteBooking(int bookingId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+
+        PreparedStatement prep = con.prepareStatement("DELETE FROM Booking WHERE id = ?;");
+        prep.setInt(1, bookingId);
+
+
+
+        int rowsAffected = prep.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("\nBooking with ID " + bookingId + " has been deleted.");
+        } else {
+            System.out.println("\nNo booking found with ID " + bookingId + ".");
+        }
+    }
+
+    public void deleteOffering(int offeringId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        //start a transaction
+        //allow multiple queries to be executed in a single transaction
+        //if one fails, the entire transaction is rolled back
+        con.setAutoCommit(false);
+    
+        try {
+            //delete all bookings associated with the offering
+            PreparedStatement deleteBookingsPrep = con.prepareStatement("DELETE FROM Booking WHERE offeringId = ?;");
+            deleteBookingsPrep.setInt(1, offeringId);
+            int bookingsDeleted = deleteBookingsPrep.executeUpdate();
+    
+            //delete the offering
+            PreparedStatement deleteOfferingPrep = con.prepareStatement("DELETE FROM Offering WHERE id = ?;");
+            deleteOfferingPrep.setInt(1, offeringId);
+            int offeringDeleted = deleteOfferingPrep.executeUpdate();
+    
+            //commit the transaction if both deletions were successful
+            if (offeringDeleted > 0) {
+                con.commit();
+                System.out.println("\nOffering with ID " + offeringId + " and " + bookingsDeleted + " associated bookings have been deleted.");
+            } else {
+                con.rollback();
+                System.out.println("\nNo offering found with ID " + offeringId + ".");
+            }
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            //restore the auto-commit mode
+            con.setAutoCommit(true);
         }
     }
     

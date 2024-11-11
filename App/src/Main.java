@@ -217,22 +217,23 @@ public class Main {
                     "2. Manage bookings.\n" +
                     "3. View all offerings.\n" +
                     "4. Add offering.\n" +
-                    "5. Manage instructor/client accounts.\n" +
-                    "6. Logout.");
+                    "5. Manage offerings.\n" +
+                    "6. Manage instructor/client accounts.\n" +
+                    "7. Logout.");
             
             int userOption;
             System.out.print("Enter choice: ");
             userOption = key.nextInt();
             key.nextLine();
             switch (userOption) {
-                case 1:
-                    // TO-DO
+                case 1://view all bookings
+                    db.displayAllBookings();
                     break;
-                case 2:
-                    // TO-DO
+                case 2://manage bookings
+                    manageBookingsAdmin();
                     break;
                 case 3:
-                     ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
+                    ResultSet rs = db.displayOfferings(); // TO-DO: to modify the output format to ressemble displayAssignedOfferings
                         while (rs.next()){
                             System.out.println("- The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
                                                 rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
@@ -243,11 +244,15 @@ public class Main {
                     break;
                 case 4:
                     addOffering();
-                    break;
+                    break;      
                 case 5:
-                    manageAccounts();
+                    // TO-DO: manage offerings
+                    manageOfferingsAdmin();
                     break;
                 case 6:
+                    manageAccounts();
+                    break;
+                case 7:
                     loggedUser = null;
                     System.out.println("Logging out...");
                     return;
@@ -369,6 +374,35 @@ public class Main {
         key.nextLine();
     }
 
+    public static void manageBookingsAdmin() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Which booking would you like to delete?");
+        db.displayAllBookings();
+        System.out.print("Enter the ID of the booking you would like to delete: ");
+        int bookingId = key.nextInt();
+        key.nextLine();
+
+        db.deleteBooking(bookingId);
+
+
+    }
+
+    public static void manageOfferingsAdmin() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Which offering would you like to delete?");
+        ResultSet rs = db.displayOfferings();
+        while (rs.next()){
+            System.out.println(rs.getString("id") + ". The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
+                                rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
+                                " to " + rs.getString("endTime") + ", from " + rs.getString("startDate") + " to " + rs.getString("endDate") + ".");
+        }
+        System.out.print("Enter the ID of the offering you would like to delete: ");
+        int offeringId = key.nextInt();
+        key.nextLine();
+
+        db.deleteOffering(offeringId);
+    }
+
     public static void instructorMenu() throws ClassNotFoundException, SQLException {
         Scanner key = new Scanner(System.in);
         System.out.println("\nHello " + loggedUser.getName() + ",");
@@ -448,6 +482,8 @@ public class Main {
         return list;
     }
 
+
+
     public static void manageAccounts() throws ClassNotFoundException, SQLException{
         Scanner key = new Scanner(System.in);
 
@@ -514,7 +550,7 @@ public class Main {
                     System.out.print("Please pick a lesson by entering their ID: ");
                     int offeringId = key.nextInt();
                     key.nextLine();
-                    if (db.checkOfferingAvailability(offeringId)){
+                    if (db.checkOfferingAvailability(offeringId) && db.checkOfferingOccupancy(offeringId)){
                         if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
                             db.addBooking(loggedUser.getId(), offeringId);
                             System.out.println("\nBooking has been successful!");
