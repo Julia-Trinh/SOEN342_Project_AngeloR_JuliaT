@@ -448,7 +448,7 @@ public class Main {
         return list;
     }
 
-    
+
 
     public static void manageAccounts() throws ClassNotFoundException, SQLException{
         Scanner key = new Scanner(System.in);
@@ -516,7 +516,7 @@ public class Main {
                     System.out.print("Please pick a lesson by entering their ID: ");
                     int offeringId = key.nextInt();
                     key.nextLine();
-                    if (db.checkOfferingAvailability(offeringId)){
+                    if (db.checkOfferingAvailability(offeringId) && db.checkOfferingOccupancy(offeringId)){
                         if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
                             db.addBooking(loggedUser.getId(), offeringId);
                             System.out.println("\nBooking has been successful!");

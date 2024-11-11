@@ -734,6 +734,46 @@ public class Database {
         }
     }
     
+    public int retrieveOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT COUNT(*) FROM Booking WHERE offeringId = ?");
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (rs.next()) {
+            return rs.getInt(1);
+        } else {
+            System.out.println("Offering with ID " + offeringId + " not found.");
+            return -1;
+        }
+    }
+
+    public int retrieveLessonCapacity(int offeringId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("SELECT l.capacity FROM Lesson l " +
+            "JOIN Offering o ON l.id = o.lessonId WHERE o.id = ?");
+        prep.setInt(1, offeringId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (rs.next()) {
+            return rs.getInt("capacity");
+        } else {
+            System.out.println("Offering with ID " + offeringId + " not found.");
+            return -1;
+        }
+    }
+
+    public boolean checkOfferingOccupancy(int OfferingId) throws ClassNotFoundException, SQLException{
+        int offeringOccupancy = retrieveOfferingOccupancy(OfferingId);
+        int lessonCapacity = retrieveLessonCapacity(OfferingId);
+        return offeringOccupancy < lessonCapacity; //return true if there is space available
+    }
 
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
