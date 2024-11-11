@@ -217,8 +217,9 @@ public class Main {
                     "2. Manage bookings.\n" +
                     "3. View all offerings.\n" +
                     "4. Add offering.\n" +
-                    "5. Manage instructor/client accounts.\n" +
-                    "6. Logout.");
+                    "5. Manage offerings.\n" +
+                    "6. Manage instructor/client accounts.\n" +
+                    "7. Logout.");
             
             int userOption;
             System.out.print("Enter choice: ");
@@ -243,11 +244,15 @@ public class Main {
                     break;
                 case 4:
                     addOffering();
-                    break;
+                    break;      
                 case 5:
-                    manageAccounts();
+                    // TO-DO: manage offerings
+                    manageOfferingsAdmin();
                     break;
                 case 6:
+                    manageAccounts();
+                    break;
+                case 7:
                     loggedUser = null;
                     System.out.println("Logging out...");
                     return;
@@ -380,6 +385,22 @@ public class Main {
         db.deleteBooking(bookingId);
 
 
+    }
+
+    public static void manageOfferingsAdmin() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        System.out.println("Which offering would you like to delete?");
+        ResultSet rs = db.displayOfferings();
+        while (rs.next()){
+            System.out.println(rs.getString("id") + ". The " + rs.getString("locationName") + ", in " + rs.getString("city") + ", is available for " +
+                                rs.getString("activityType") + " classes on " + rs.getString("day") + " from " + rs.getString("startTime") +
+                                " to " + rs.getString("endTime") + ", from " + rs.getString("startDate") + " to " + rs.getString("endDate") + ".");
+        }
+        System.out.print("Enter the ID of the offering you would like to delete: ");
+        int offeringId = key.nextInt();
+        key.nextLine();
+
+        db.deleteOffering(offeringId);
     }
 
     public static void instructorMenu() throws ClassNotFoundException, SQLException {

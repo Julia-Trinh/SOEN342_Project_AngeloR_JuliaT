@@ -999,13 +999,51 @@ public class Database {
         PreparedStatement prep = con.prepareStatement("DELETE FROM Booking WHERE id = ?;");
         prep.setInt(1, bookingId);
 
-        
+
 
         int rowsAffected = prep.executeUpdate();
         if (rowsAffected > 0) {
             System.out.println("\nBooking with ID " + bookingId + " has been deleted.");
         } else {
             System.out.println("\nNo booking found with ID " + bookingId + ".");
+        }
+    }
+
+    public void deleteOffering(int offeringId) throws SQLException, ClassNotFoundException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        //start a transaction
+        //allow multiple queries to be executed in a single transaction
+        //if one fails, the entire transaction is rolled back
+        con.setAutoCommit(false);
+    
+        try {
+            //delete all bookings associated with the offering
+            PreparedStatement deleteBookingsPrep = con.prepareStatement("DELETE FROM Booking WHERE offeringId = ?;");
+            deleteBookingsPrep.setInt(1, offeringId);
+            int bookingsDeleted = deleteBookingsPrep.executeUpdate();
+    
+            //delete the offering
+            PreparedStatement deleteOfferingPrep = con.prepareStatement("DELETE FROM Offering WHERE id = ?;");
+            deleteOfferingPrep.setInt(1, offeringId);
+            int offeringDeleted = deleteOfferingPrep.executeUpdate();
+    
+            //commit the transaction if both deletions were successful
+            if (offeringDeleted > 0) {
+                con.commit();
+                System.out.println("\nOffering with ID " + offeringId + " and " + bookingsDeleted + " associated bookings have been deleted.");
+            } else {
+                con.rollback();
+                System.out.println("\nNo offering found with ID " + offeringId + ".");
+            }
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            //restore the auto-commit mode
+            con.setAutoCommit(true);
         }
     }
     
