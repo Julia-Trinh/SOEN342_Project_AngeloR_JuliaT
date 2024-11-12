@@ -56,7 +56,6 @@ public class Database {
         "PRIMARY KEY(id AUTOINCREMENT) " +
         ")";
     
-    // TO-DO: add city availabilities
     private static final String CREATE_TABLE_INSTRUCTOR = 
         "CREATE TABLE " + TABLE_INSTRUCTOR + 
         " ("+ 
@@ -466,6 +465,8 @@ public class Database {
         if (numberOfBookings == lessonCapacity) {
             setOfferingPublicAvailability(offeringId, false);
         }
+
+        // TO-DO: copy timeslot for client's schedule
 
         return id;
     }
@@ -946,14 +947,91 @@ public class Database {
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Bookings found in the database.");
         } else {
-            System.out.println("Bookings:");
-            System.out.printf("%-10s %-20s %-20s %-20s%n", "Booking ID", "Client Name", "Lesson Name", "Location Name");
+            System.out.println("\nBookings:");
             while (rs.next()) {
                 System.out.println("Booking ID: " + rs.getInt("bookingId") + ", Client: " + rs.getString("clientName") + ", Lesson: " + rs.getString("lessonName") + ", Location: " + rs.getString("locationName"));
             }
+            System.out.println();
         }
     }
 
+    public ResultSet displayAssignedOfferingsByInstructor(int instructorId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("""
+                                                    SELECT 
+                                                        Location.name AS locationName,
+                                                        Location.city,
+                                                        Location.spaceType,
+                                                        Timeslot.day,
+                                                        Timeslot.startTime,
+                                                        Timeslot.endTime,
+                                                        Timeslot.startDate,
+                                                        Timeslot.endDate,
+                                                        Lesson.capacity,
+                                                        Lesson.activityType,
+                                                        Instructor.name AS instructorName,
+                                                        Offering.isAvailableToPublic,
+                                                        Offering.id
+                                                    FROM Offering
+                                                    JOIN Location ON Offering.locationId = Location.id
+                                                    JOIN Timeslot ON Offering.timeslotId = Timeslot.id
+                                                    JOIN Lesson ON Offering.lessonId = Lesson.id
+                                                    JOIN Instructor ON Offering.instructorId = Instructor.id
+                                                    WHERE Offering.instructorId = ?;
+                                                    """);
+        prep.setInt(1, instructorId);
+        ResultSet rs = prep.executeQuery();
+        if (!rs.isBeforeFirst()) {
+            return null;
+        }
+        return rs;
+    }
+
+    public void displayBookingsByClient(int clientId) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+    
+        PreparedStatement prep = con.prepareStatement("""
+                                                        SELECT 
+                                                            Location.name AS locationName,
+                                                            Location.city,
+                                                            Timeslot.day,
+                                                            Timeslot.startTime,
+                                                            Timeslot.endTime,
+                                                            Timeslot.startDate,
+                                                            Timeslot.endDate,
+                                                            Lesson.activityType,
+                                                            Booking.id
+                                                        FROM Booking
+                                                        JOIN Offering ON Booking.offeringId = Offering.id
+                                                        JOIN Location ON Offering.locationId = Location.id
+                                                        JOIN Timeslot ON Offering.timeslotId = Timeslot.id
+                                                        JOIN Lesson ON Offering.lessonId = Lesson.id
+                                                        WHERE Booking.clientId = ?;
+                                                    """);
+        prep.setInt(1, clientId);
+        ResultSet rs = prep.executeQuery();
+    
+        if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
+            System.out.println("Currently no Bookings found in the database.");
+        } else {
+            System.out.println("\nYour bookings:");
+            while (rs.next()) {
+                System.out.println(
+                    rs.getInt("id") + ". " + rs.getString("day") + " " + rs.getString("startDate") + " to " + rs.getString("endDate") +
+                    ", " + rs.getString("startTime") + " - " + rs.getString("endTime") +
+                    "\tLesson: " + rs.getString("activityType") +
+                    "\tLocation: " + rs.getString("locationName") +
+                    "\tCity: " + rs.getString("city")
+                );
+            }
+            System.out.println();
+        }
+    }
 
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // ------------------------------ DELETE Methods ---------------------------
