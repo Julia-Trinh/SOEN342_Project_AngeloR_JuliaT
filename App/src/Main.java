@@ -246,7 +246,6 @@ public class Main {
                     addOffering();
                     break;      
                 case 5:
-                    // TO-DO: manage offerings
                     manageOfferingsAdmin();
                     break;
                 case 6:
@@ -383,8 +382,6 @@ public class Main {
         key.nextLine();
 
         db.deleteBooking(bookingId);
-
-
     }
 
     public static void manageOfferingsAdmin() throws ClassNotFoundException, SQLException {
@@ -419,10 +416,36 @@ public class Main {
 
             switch (userOption) {
                 case 1:
+                    ResultSet rs = db.displayAssignedOfferingsByInstructor(((Instructor)loggedUser).getId());
 
+                    System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                            "ID", "Activity Type", "Location Name", "Location City", 
+                            "Start Time", "End Time", "Start Date", "End Date", "Day");
+
+                    // Print values
+                    while (rs.next()) {
+                        System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                                        rs.getString("id"), rs.getString("activityType"), rs.getString("locationName"), rs.getString("city"), 
+                                        rs.getString("startTime"), rs.getString("endTime"), rs.getString("startDate"), rs.getString("endDate"), rs.getString("day"));
+                    }
+                    System.out.println("Press Enter to continue...");
+                    key.nextLine();
                     break;
                 case 2:
+                    ResultSet rs2 = db.displayUnassignedOfferings(((Instructor)loggedUser).getCityAvailabilities(), ((Instructor)loggedUser).getActivityType());
 
+                    System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                            "ID", "Activity Type", "Location Name", "Location City", 
+                            "Start Time", "End Time", "Start Date", "End Date", "Day");
+
+                    // Print values
+                    while (rs2.next()) {
+                        System.out.printf("%-5s %-20s %-20s %-20s %-10s %-10s %-20s %-20s %-10s%n", 
+                                        rs2.getString("id"), rs2.getString("activityType"), rs2.getString("locationName"), rs2.getString("locationCity"), 
+                                        rs2.getString("startTime"), rs2.getString("endTime"), rs2.getString("startDate"), rs2.getString("endDate"), rs2.getString("day"));
+                    }
+                    System.out.println("Press Enter to continue...");
+                    key.nextLine();
                     break;
                 case 3:
                     assignOffering();
@@ -481,8 +504,6 @@ public class Main {
         }
         return list;
     }
-
-
 
     public static void manageAccounts() throws ClassNotFoundException, SQLException{
         Scanner key = new Scanner(System.in);
@@ -562,7 +583,7 @@ public class Main {
                     }
                     break;
                 case 2:
-                    // TO-DO: manage bookings
+                    manageBookingsClient();
                     break;
                 case 3:
                     loggedUser = null;
@@ -605,5 +626,23 @@ public class Main {
                 }
                 System.out.println();
             }
+    }
+
+    public static void manageBookingsClient() throws ClassNotFoundException, SQLException {
+        Scanner key = new Scanner(System.in);
+        db.displayBookingsByClient(((Client) loggedUser).getId());
+        System.out.println("\nSelect an option below:" + 
+                            "\n1. Delete a booking" +
+                            "\n2. Return");
+        int userOption = key.nextInt();
+        key.nextLine();
+
+        if (userOption == 1){
+            System.out.print("\nEnter the ID of the booking you want to delete:");
+            int bookingId = key.nextInt();
+            key.nextLine();
+            // TO-DO: delete booking, check capacity if needed, and delete timeslot from client schedule
+        }
+        else return;
     }
 }

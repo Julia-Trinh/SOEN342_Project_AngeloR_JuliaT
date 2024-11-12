@@ -43,8 +43,6 @@ public class Client extends RegisteredUser{
 
     public void addBooking(Offering offering) throws ClassNotFoundException, SQLException{
         if(offering.getIsAvailableToPublic()){
-            //TO-DO: check Client's schedule
-            
             Booking booking = new Booking(this, offering);  // added to bookings at creation
         }
     }
