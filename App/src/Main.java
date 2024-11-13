@@ -253,7 +253,7 @@ public class Main {
                     break;
                 case 7:
                     loggedUser = null;
-                    System.out.println("Logging out...");
+                    System.out.println("Logging out...\n");
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -452,7 +452,7 @@ public class Main {
                     break;
                 case 4:
                     loggedUser = null;
-                    System.out.println("Logging out...");
+                    System.out.println("Logging out...\n");
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
@@ -555,7 +555,7 @@ public class Main {
         Scanner key = new Scanner(System.in);
         System.out.println("\nHello " + loggedUser.getName() + ",");
         while(true){
-            System.out.println("Please chose what you want to do as a client:\n" +
+            System.out.println("\nPlease chose what you want to do as a client:\n" +
                     "1. Make a booking.\n" +
                     "2. Manage my bookings.\n" +
                     "3. Logout.");
@@ -587,7 +587,7 @@ public class Main {
                     break;
                 case 3:
                     loggedUser = null;
-                    System.out.println("Logging out...");
+                    System.out.println("Logging out...\n");
                     return;
                 default:
                     System.out.println("Invalid option. Please try again.");
