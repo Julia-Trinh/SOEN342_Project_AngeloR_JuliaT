@@ -466,7 +466,41 @@ public class Database {
             setOfferingPublicAvailability(offeringId, false);
         }
 
-        // TO-DO: copy timeslot for client's schedule
+        // Copy offering timeslot to the client's schedule
+        PreparedStatement timeslotPrep = con.prepareStatement("SELECT T.day, T.startTime, T.endTime, T.startDate, T.endDate, C.scheduleId " +
+                                                                "FROM Offering O " +
+                                                                "JOIN Timeslot T ON O.timeslotId = T.id " +
+                                                                "JOIN Client C ON C.id = ? " +
+                                                                "WHERE O.id = ?");
+        timeslotPrep.setInt(1, clientId);
+        timeslotPrep.setInt(2, offeringId);
+
+        String day = null;
+        String startTime = null;
+        String endTime = null;
+        String startDate = null;
+        String endDate = null;
+        int scheduleId = -1;
+
+        try (ResultSet rs = timeslotPrep.executeQuery()) {
+            if (rs.next()) {
+                day = rs.getString("day");
+                startTime = rs.getString("startTime");
+                endTime = rs.getString("endTime");
+                startDate = rs.getString("startDate");
+                endDate = rs.getString("endDate");
+                scheduleId = rs.getInt("scheduleId");
+            } else {
+                throw new SQLException("No matching offering or client found.");
+            }
+        }
+
+        int newTimeslotId = addTimeslot(day, startTime, endTime, startDate, endDate);
+
+        PreparedStatement updateTimeslotPrep = con.prepareStatement("UPDATE Timeslot SET scheduleId = ? WHERE id = ?");
+        updateTimeslotPrep.setInt(1, scheduleId);
+        updateTimeslotPrep.setInt(2, newTimeslotId);
+        updateTimeslotPrep.executeUpdate();
 
         return id;
     }
@@ -675,7 +709,7 @@ public class Database {
         }
 
         //get timeslot from database
-        String query = "SELECT t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
+        String query = "SELECT t.id, t.startTime, t.endTime, t.startDate, t.endDate, t.day " +
                        "FROM Offering o " +
                        "JOIN Timeslot t ON o.timeslotId = t.id " +
                        "WHERE o.id = ?";
@@ -686,13 +720,15 @@ public class Database {
 
         //get timeslot attributes
         if (rs.next()) {
+            int timeslotId = rs.getInt("id");
             String day = rs.getString("day");
-            LocalTime startTime = LocalTime.parse(rs.getString("startTime"), timeFormatter);
-            LocalTime endTime = LocalTime.parse(rs.getString("endTime"), timeFormatter);
-            LocalDate startDate = LocalDate.parse(rs.getString("startDate"), dateFormatter);
-            LocalDate endDate = LocalDate.parse(rs.getString("endDate"), dateFormatter);
+            String startTime = rs.getString("startTime");
+            String endTime = rs.getString("endTime");
+            String startDate = rs.getString("startDate");
+            String endDate = rs.getString("endDate");
 
             Timeslot timeslot = new Timeslot(
+                timeslotId,
                 day,
                 startTime,
                 endTime,
@@ -770,9 +806,9 @@ public class Database {
         }
     }
 
-    public boolean checkOfferingOccupancy(int OfferingId) throws ClassNotFoundException, SQLException{
-        int offeringOccupancy = retrieveOfferingOccupancy(OfferingId);
-        int lessonCapacity = retrieveLessonCapacity(OfferingId);
+    public boolean checkOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException{
+        int offeringOccupancy = retrieveOfferingOccupancy(offeringId);
+        int lessonCapacity = retrieveLessonCapacity(offeringId);
         return offeringOccupancy < lessonCapacity; //return true if there is space available
     }
 
@@ -1074,17 +1110,95 @@ public class Database {
             getConnection();
         }
 
+        // Get the offeringId associated with the booking
+        PreparedStatement offeringIdPrep = con.prepareStatement("SELECT offeringId FROM Booking WHERE id = ?");
+        offeringIdPrep.setInt(1, bookingId);
+
+        int offeringId = -1;
+        try (ResultSet rs = offeringIdPrep.executeQuery()) {
+            if (rs.next()) {
+                offeringId = rs.getInt("offeringId");
+            } else {
+                System.out.println("No booking found with ID " + bookingId);
+                return;
+            }
+        }
+
+        // Delete the booking
         PreparedStatement prep = con.prepareStatement("DELETE FROM Booking WHERE id = ?;");
         prep.setInt(1, bookingId);
-
-
 
         int rowsAffected = prep.executeUpdate();
         if (rowsAffected > 0) {
             System.out.println("\nBooking with ID " + bookingId + " has been deleted.");
         } else {
             System.out.println("\nNo booking found with ID " + bookingId + ".");
+            return; // Exit if no booking was found to delete
         }
+
+        // Fetch the timeslot attributes of the lesson associated with the booking
+        PreparedStatement timeslotFetchPrep = con.prepareStatement(
+            "SELECT T.id, T.day, T.startTime, T.endTime, T.startDate, T.endDate, B.clientId " +
+            "FROM Offering O " +
+            "JOIN Timeslot T ON O.timeslotId = T.id " +
+            "JOIN Booking B ON B.offeringId = O.id " + 
+            "WHERE O.id = ?"
+        );
+        timeslotFetchPrep.setInt(1, offeringId);
+
+        String day = null;
+        String startTime = null;
+        String endTime = null;
+        String startDate = null;
+        String endDate = null;
+        int clientId = -1;
+
+        try (ResultSet rs = timeslotFetchPrep.executeQuery()) {
+            if (rs.next()) {
+                day = rs.getString("day");
+                startTime = rs.getString("startTime");
+                endTime = rs.getString("endTime");
+                startDate = rs.getString("startDate");
+                endDate = rs.getString("endDate");
+                clientId = rs.getInt("clientId");
+            } else {
+                System.out.println("\nNo timeslot in your schedule found for the deleted booking.");
+                return; // Exit if no timeslot is found
+            }
+        }
+
+        // Find and delete the matching timeslot from the client's schedule
+        PreparedStatement clientTimeslotPrep = con.prepareStatement(
+            "DELETE FROM Timeslot " +
+            "WHERE day = ? AND startTime = ? AND endTime = ? AND startDate = ? AND endDate = ? AND scheduleId = " +
+            "(SELECT scheduleId FROM Client WHERE id = ?)"
+        );
+        clientTimeslotPrep.setString(1, day);
+        clientTimeslotPrep.setString(2, startTime);
+        clientTimeslotPrep.setString(3, endTime);
+        clientTimeslotPrep.setString(4, startDate);
+        clientTimeslotPrep.setString(5, endDate);
+        clientTimeslotPrep.setInt(6, clientId);
+
+        int deletedRows = clientTimeslotPrep.executeUpdate();
+        if (deletedRows > 0) {
+            System.out.println("\nTimeslot has been deleted from the your schedule.");
+        } else {
+            System.out.println("\nNo matching timeslot found in the client's schedule to delete.");
+        }
+
+        // Check if the offering's availability is affected
+        if(checkOfferingOccupancy(offeringId)){
+            PreparedStatement offeringAvailabilityPrep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = 1 WHERE id = ?;");
+            offeringAvailabilityPrep.setInt(1, offeringId);
+            offeringAvailabilityPrep.execute();
+        }
+        else{
+            PreparedStatement offeringAvailabilityPrep = con.prepareStatement("UPDATE Offering SET isAvailableToPublic = 0 WHERE id = ?;");
+            offeringAvailabilityPrep.setInt(1, offeringId);
+            offeringAvailabilityPrep.execute();
+        }
+
     }
 
     public void deleteOffering(int offeringId) throws SQLException, ClassNotFoundException {
@@ -1124,7 +1238,6 @@ public class Database {
             con.setAutoCommit(true);
         }
     }
-    
 }
 
         
