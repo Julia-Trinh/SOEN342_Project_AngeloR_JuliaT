@@ -638,10 +638,10 @@ public class Main {
         key.nextLine();
 
         if (userOption == 1){
-            System.out.print("\nEnter the ID of the booking you want to delete:");
+            System.out.print("\nEnter the ID of the booking you want to delete: ");
             int bookingId = key.nextInt();
             key.nextLine();
-            // TO-DO: delete booking, check capacity if needed, and delete timeslot from client schedule
+            db.deleteBooking(bookingId);
         }
         else return;
     }
