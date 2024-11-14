@@ -330,7 +330,7 @@ public class Main {
             String endDateString = key.nextLine();
             LocalDate endDate = LocalDate.parse(endDateString, dateFormatter);
 
-            timeslot = ((Administrator) loggedUser).createLocationTimeslot(dayString, startTime, endTime, startDate, endDate, location.getSchedule());
+            timeslot = createLocationTimeslot(dayString, startTime, endTime, startDate, endDate, location.getSchedule());
         }
         System.out.println("\nTimeslot is valid.\n");
 
@@ -398,6 +398,18 @@ public class Main {
         key.nextLine();
 
         db.deleteOffering(offeringId);
+    }
+
+    public static Timeslot createLocationTimeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule locationSchedule) throws ClassNotFoundException, SQLException{
+        Timeslot timeslot = new Timeslot(day, startTime, endTime, startDate, endDate);
+        if (locationSchedule.isAvailableTimeslot(timeslot)) {
+            locationSchedule.addTimeSlot(timeslot);
+            return timeslot;
+        }
+        else {
+            System.out.println("Error: Unable to add timeslot. Conflicting schedule detected. Please try again.");
+            return null;
+        }
     }
 
     public static void instructorMenu() throws ClassNotFoundException, SQLException {
@@ -571,7 +583,7 @@ public class Main {
                     System.out.print("Please pick a lesson by entering their ID: ");
                     int offeringId = key.nextInt();
                     key.nextLine();
-                    if (db.checkOfferingAvailability(offeringId) && db.checkOfferingOccupancy(offeringId)){
+                    if (db.checkOfferingOccupancy(offeringId)){ // removed db.checkOfferingAvailability(offeringId) && 
                         if(((Client) loggedUser).getSchedule().isAvailableTimeslot(db.retrieveOfferingTimeslot(offeringId))) {
                             db.addBooking(loggedUser.getId(), offeringId);
                             System.out.println("\nBooking has been successful!");
