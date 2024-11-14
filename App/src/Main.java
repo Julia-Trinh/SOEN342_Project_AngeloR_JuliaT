@@ -501,6 +501,8 @@ public class Main {
             System.out.println("Offering fits in schedule.");
             //assign offering to instructor
             db.assignInstructor(instructor.getId(), userInput);
+            //create new timeslot for instructor
+            db.addInstructorTimeslot(instructor.getSchedule(), db.retrieveOfferingTimeslot(userInput));
         }
         else{
             System.out.println("Offering does not fit in schedule.");

@@ -524,7 +524,30 @@ public class Database {
         return id;
     }
 
+    public void addInstructorTimeslot(Schedule instructorSchedule, Timeslot selectedTimeslot) throws ClassNotFoundException, SQLException {
+        if (con == null) {
+            getConnection();
+        }
+        
 
+
+        // New timeslot
+        String day = selectedTimeslot.getDay();
+        LocalTime startTime = selectedTimeslot.getStartTime();
+        LocalTime endTime = selectedTimeslot.getEndTime();
+        LocalDate startDate = selectedTimeslot.getStartDate();
+        LocalDate endDate = selectedTimeslot.getEndDate();
+
+        // Add timeslot to database
+        int timeslotId = addTimeslot(day, startTime.format(timeFormatter), endTime.format(timeFormatter), startDate.format(dateFormatter), endDate.format(dateFormatter));
+
+        // Assign timeslot to instructor schedule
+        PreparedStatement prep = con.prepareStatement("UPDATE Timeslot SET scheduleId = ? WHERE id = ?;");
+        prep.setInt(1, instructorSchedule.getId());
+        prep.setInt(2, timeslotId);
+        prep.execute();
+        
+    }
     
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
