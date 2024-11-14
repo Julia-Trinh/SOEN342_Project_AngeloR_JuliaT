@@ -11,7 +11,7 @@ public class Offering {
     private List<Booking> bookings;
     Database db = Database.getInstance();
 
-    public Offering(Lesson lesson, Location location, Timeslot timeslot) throws ClassNotFoundException, SQLException {
+    public Offering(Lesson lesson, Location location, Timeslot timeslot) throws ClassNotFoundException, SQLException, InterruptedException {
         this.lesson = lesson;
         this.location = location;
         this.timeslot = timeslot;
@@ -19,7 +19,7 @@ public class Offering {
         id = db.addOffering(lesson.getId(), location.getId(), timeslot.getId(), isAvailableToPublic);
     }
 
-    public void assignOffering(Instructor instructor) throws ClassNotFoundException, SQLException{
+    public void assignOffering(Instructor instructor) throws ClassNotFoundException, SQLException, InterruptedException{
         this.assignedInstructor = instructor;
         this.isAvailableToPublic = true;
         db.assignOffering(instructor.getId());

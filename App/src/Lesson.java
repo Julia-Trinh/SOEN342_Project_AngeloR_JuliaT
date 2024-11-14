@@ -9,7 +9,7 @@ public class Lesson {
     private List<Offering> offerings = new ArrayList<>();
     Database db = Database.getInstance();
 
-    public Lesson(String activityType, int capacity) throws ClassNotFoundException, SQLException {
+    public Lesson(String activityType, int capacity) throws ClassNotFoundException, SQLException, InterruptedException {
         this.activityType = activityType;
         this.capacity = capacity;
         id = db.addLesson(activityType, capacity);

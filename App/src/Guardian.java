@@ -6,7 +6,7 @@ public class Guardian extends Client{
     private int guardianAge;
     Database db = Database.getInstance();
 
-    public Guardian(String username, String password, String youthName, int phoneNumber, int age, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException{
+    public Guardian(String username, String password, String youthName, int phoneNumber, int age, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException, InterruptedException{
         super(username, password, youthName, phoneNumber, age, true);
         this.guardianName = guardianName;
         this.relationshipWithYouth = relationshipWithYouth;

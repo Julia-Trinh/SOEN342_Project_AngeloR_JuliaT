@@ -8,7 +8,7 @@ public class Schedule {
     private List<Timeslot> timeslots = new ArrayList<>();
     Database db = Database.getInstance();
 
-    public Schedule() throws ClassNotFoundException, SQLException {
+    public Schedule() throws ClassNotFoundException, SQLException, InterruptedException {
         this.id = db.addSchedule();
     }
 
@@ -18,7 +18,7 @@ public class Schedule {
         this.timeslots = timeslots;
     }
 
-    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException {
+    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException, InterruptedException {
         //need to check if timeslot fits in schedule
         //add timeslot if valid
         if(isAvailableTimeslot(timeslot)){
