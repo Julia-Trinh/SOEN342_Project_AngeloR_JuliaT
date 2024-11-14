@@ -16,7 +16,7 @@ public class Timeslot {
     Database db = Database.getInstance();
 
     //constructor without an id
-    public Timeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException {
+    public Timeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate) throws ClassNotFoundException, SQLException, InterruptedException {
         this.day = day;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -69,7 +69,7 @@ public class Timeslot {
         return schedule;
     }
 
-    public void setSchedule(Schedule schedule) throws ClassNotFoundException, SQLException {
+    public void setSchedule(Schedule schedule) throws ClassNotFoundException, SQLException, InterruptedException {
         this.schedule = schedule;
         db.setScheduleToTimeslot(id, schedule.getId());
     }

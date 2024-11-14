@@ -6,7 +6,7 @@ public class Booking {
     private Offering offering;
     Database db = Database.getInstance();
 
-    public Booking(Client client, Offering offering) throws ClassNotFoundException, SQLException {
+    public Booking(Client client, Offering offering) throws ClassNotFoundException, SQLException, InterruptedException {
         this.client = client;
         this.offering = offering;
 
