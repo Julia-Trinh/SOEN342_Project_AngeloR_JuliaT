@@ -20,6 +20,8 @@ public class Administrator extends RegisteredUser{
         return id;
     }
 
+
+
     public Timeslot createLocationTimeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule locationSchedule) throws ClassNotFoundException, SQLException, InterruptedException{
         Timeslot timeslot = new Timeslot(day, startTime, endTime, startDate, endDate);
         if (locationSchedule.isAvailableTimeslot(timeslot)) {
