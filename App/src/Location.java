@@ -11,7 +11,7 @@ public class Location {
     private Organization organization;
     Database db = Database.getInstance();
 
-    public Location(String name, String activityType, String city, Organization organization) throws ClassNotFoundException, SQLException {
+    public Location(String name, String activityType, String city, Organization organization) throws ClassNotFoundException, SQLException, InterruptedException {
         this.name = name;
         this.activityType = activityType;
         this.city = city;

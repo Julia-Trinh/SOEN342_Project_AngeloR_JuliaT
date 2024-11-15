@@ -10,13 +10,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 
 // Singleton
-public class Database {
+public class Database extends Thread{
     private static Database instance = null;
     private static Connection con;
     private static boolean hasData = false;
+
+    // Semaphores
+    private final Semaphore writeBlock = new Semaphore(1);
+    private final Semaphore mutex = new Semaphore(1);
+    private int readCount = 0;
 
     // Date and time formatters
     static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -171,7 +177,7 @@ public class Database {
         ")";
 
     // Method to get the connection
-    public void getConnection() throws ClassNotFoundException, SQLException {
+    public void getConnection() throws ClassNotFoundException, SQLException, InterruptedException {
         if (con == null || con.isClosed()) {
             con = DriverManager.getConnection("jdbc:sqlite:database.db");
 
@@ -194,7 +200,7 @@ public class Database {
     }
 
     // Method to initialize the database
-    private void initialize() throws SQLException {
+    private void initialize() throws SQLException, InterruptedException {
         if (!hasData) {
             hasData = true;
 
@@ -217,15 +223,18 @@ public class Database {
     }
 
     // Helper method to create a table if it does not exist
-    private void createTableIfNotExists(Statement state, String tableName, String createTableSQL) throws SQLException {
+    private synchronized void createTableIfNotExists(Statement state, String tableName, String createTableSQL) throws SQLException, InterruptedException {
+        writeBlock.acquire();
+
         ResultSet res = state.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='" + tableName + "'");
         if (!res.next()) {
             System.out.println("Building the " + tableName + " table.");
             state.execute(createTableSQL);
         }
         res.close();
-    }
 
+        writeBlock.release();
+    }
 
     
     
@@ -234,7 +243,9 @@ public class Database {
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-    public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException {
+    public int addAdmin(String username, String password, String name, int phoneNumber) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+
         if (con == null) {
             getConnection();
         }
@@ -254,10 +265,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addInstructor(String username, String password, String name, int phoneNumber, int scheduleId, String cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException {
+    public int addInstructor(String username, String password, String name, int phoneNumber, int scheduleId, String cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -280,10 +295,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addClient(String username, String password, String name, int phoneNumber, int age, int scheduleId, boolean isGuardian, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException {
+    public int addClient(String username, String password, String name, int phoneNumber, int age, int scheduleId, boolean isGuardian, String guardianName, String relationshipWithYouth, int guardianAge) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -309,10 +328,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addOrganization(String name) throws ClassNotFoundException, SQLException {
+    public int addOrganization(String name) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -329,10 +352,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addTimeslot(String day, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException {
+    public int addTimeslot(String day, String startTime, String endTime, String startDate, String endDate) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -353,10 +380,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addLesson(String activityType, int capacity) throws ClassNotFoundException, SQLException {
+    public int addLesson(String activityType, int capacity) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -374,10 +405,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addLocation(String name, String activityType, String city, int organizationId, int scheduleId) throws ClassNotFoundException, SQLException {
+    public int addLocation(String name, String activityType, String city, int organizationId, int scheduleId) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -398,10 +433,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addOffering(int lessonId, int locationId, int timeslotId, boolean isAvailableToPublic) throws ClassNotFoundException, SQLException {
+    public int addOffering(int lessonId, int locationId, int timeslotId, boolean isAvailableToPublic) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -421,10 +460,14 @@ public class Database {
             }
         }
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addBooking(int clientId, int offeringId) throws ClassNotFoundException, SQLException {
+    public int addBooking(int clientId, int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -502,10 +545,14 @@ public class Database {
         updateTimeslotPrep.setInt(2, newTimeslotId);
         updateTimeslotPrep.executeUpdate();
 
+        writeBlock.release();
+
         return id;
     }
 
-    public int addSchedule() throws ClassNotFoundException, SQLException {
+    public int addSchedule() throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -520,6 +567,8 @@ public class Database {
                 id = rs.getInt(1);
             }
         }
+
+        writeBlock.release();
 
         return id;
     }
@@ -554,7 +603,9 @@ public class Database {
     // ------------------------------ UPDATE Methods ---------------------------
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void setScheduleToTimeslot(int timeslotId, int scheduleId) throws ClassNotFoundException, SQLException {
+    public void setScheduleToTimeslot(int timeslotId, int scheduleId) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -563,9 +614,13 @@ public class Database {
         prep.setInt(1, scheduleId);
         prep.setInt(2, timeslotId);
         prep.execute();
+
+        writeBlock.release();
     }
 
-    public void assignOffering(int instructorId) throws ClassNotFoundException, SQLException {
+    public void assignOffering(int instructorId) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -574,9 +629,13 @@ public class Database {
         prep.setInt(1, instructorId);
         prep.setBoolean(2, true);
         prep.execute();
+
+        writeBlock.release();
     }
 
-    public void assignInstructor(int instructorId, int offeringId) throws ClassNotFoundException, SQLException {
+    public void assignInstructor(int instructorId, int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -592,10 +651,14 @@ public class Database {
         prep1.setInt(2, offeringId);
         prep1.execute();
 
+        writeBlock.release();
+
         System.out.println("Instructor successfully assigned to offering.");
     }
 
-    public void setOfferingPublicAvailability(int id, boolean availability) throws ClassNotFoundException, SQLException {
+    public void setOfferingPublicAvailability(int id, boolean availability) throws ClassNotFoundException, SQLException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -604,6 +667,8 @@ public class Database {
         prep.setBoolean(1, availability);
         prep.setInt(2, id);
         prep.execute();
+
+        writeBlock.release();
     }
     
     
@@ -613,7 +678,12 @@ public class Database {
     // ------------------------------ READ Methods -----------------------------
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
-    public int retrieveOrganizationIdFromName(String name) throws ClassNotFoundException, SQLException{
+    public int retrieveOrganizationIdFromName(String name) throws ClassNotFoundException, SQLException, InterruptedException{
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+
         if (con == null) {
             getConnection();
         }
@@ -622,13 +692,23 @@ public class Database {
         prep.setString(1, name);
         ResultSet rs = prep.executeQuery();
 
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (rs.next()){
             return rs.getInt("id");
         }
         else return -1;
     }
 
-    public Location retrieveLocation(int locationId) throws ClassNotFoundException, SQLException {
+    public Location retrieveLocation(int locationId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -646,10 +726,24 @@ public class Database {
         // Get schedule
         Schedule s = retrieveSchedule(rs1.getInt("scheduleId"));
 
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return new Location(rs1.getInt("id"), rs1.getString("name"), rs1.getString("spaceType"), rs1.getString("city"), new Organization(rs1.getInt("organizationId"), rs2.getString("name")), s);
     }
 
-    public Schedule retrieveSchedule(int scheduleId) throws ClassNotFoundException, SQLException {
+    public Schedule retrieveSchedule(int scheduleId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
+        if (con == null) {
+            getConnection();
+        }
+
         PreparedStatement prep = con.prepareStatement("SELECT id, startTime, endTime, day, startDate, endDate FROM Timeslot WHERE scheduleId = ?");
         prep.setInt(1, scheduleId);
         ResultSet rs3 = prep.executeQuery();
@@ -660,10 +754,20 @@ public class Database {
         Schedule s = new Schedule(scheduleId, timeslots);
         for (Timeslot timeslot : timeslots) timeslot.setRetrievedSchedule(s);
 
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return s;
     }
 
-    public RegisteredUser retrieveUserFromCredentials(String username, String password, String userType) throws ClassNotFoundException, SQLException {
+    public RegisteredUser retrieveUserFromCredentials(String username, String password, String userType) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -688,6 +792,12 @@ public class Database {
                                             rs.getString("relationshipWithYouth"), rs.getInt("guardianAge"));
                 }
             }
+            
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+
             return user;
         }
 
@@ -705,6 +815,12 @@ public class Database {
                                         rs.getInt("phoneNumber"), rs.getString("activityType"), 
                                         Arrays.asList(rs.getString("cityAvailabilities").split(",")), schedule);
             }
+
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+
             return user;
         }
 
@@ -720,13 +836,30 @@ public class Database {
                 user = new Administrator(rs.getInt("id"), rs.getString("username"), rs.getString("password"), rs.getString("name"),
                                             rs.getInt("phoneNumber"));
             }
+
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+
             return user;
         }
 
-        else return null;
+        else {
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+            return null;
+        }
     }
 
-    public Timeslot retrieveOfferingTimeslot(int offeringId) throws ClassNotFoundException, SQLException {
+    public Timeslot retrieveOfferingTimeslot(int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -758,14 +891,30 @@ public class Database {
                 startDate,
                 endDate
             );
+
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+
             return timeslot;
         } else {
+            mutex.acquire();
+            readCount--;
+            if (readCount == 0) writeBlock.release();
+            mutex.release();
+
             System.out.println("No timeslot found for the given offering ID.");
             return null;
         }
     }
 
-    public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException {
+    public Lesson retrieveLesson(int lessonId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -774,10 +923,20 @@ public class Database {
         prep.setInt(1, lessonId);
         ResultSet rs = prep.executeQuery();
 
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return new Lesson(lessonId, rs.getString("activityType"), rs.getInt("capacity"));
     }
 
-    public boolean checkOfferingAvailability(int offeringId) throws ClassNotFoundException, SQLException {
+    public boolean checkOfferingAvailability(int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -786,6 +945,11 @@ public class Database {
         prep.setInt(1, offeringId);
         ResultSet rs = prep.executeQuery();
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (rs.next()) {
             return rs.getBoolean("isAvailableToPublic");
         } else {
@@ -794,7 +958,12 @@ public class Database {
         }
     }
     
-    public int retrieveOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException {
+    public int retrieveOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -803,6 +972,11 @@ public class Database {
         prep.setInt(1, offeringId);
         ResultSet rs = prep.executeQuery();
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (rs.next()) {
             return rs.getInt(1);
         } else {
@@ -811,7 +985,12 @@ public class Database {
         }
     }
 
-    public int retrieveLessonCapacity(int offeringId) throws ClassNotFoundException, SQLException {
+    public int retrieveLessonCapacity(int offeringId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -821,6 +1000,11 @@ public class Database {
         prep.setInt(1, offeringId);
         ResultSet rs = prep.executeQuery();
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (rs.next()) {
             return rs.getInt("capacity");
         } else {
@@ -829,7 +1013,7 @@ public class Database {
         }
     }
 
-    public boolean checkOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException{
+    public boolean checkOfferingOccupancy(int offeringId) throws ClassNotFoundException, SQLException, InterruptedException{
         int offeringOccupancy = retrieveOfferingOccupancy(offeringId);
         int lessonCapacity = retrieveLessonCapacity(offeringId);
         return offeringOccupancy < lessonCapacity; //return true if there is space available
@@ -840,7 +1024,12 @@ public class Database {
     // ------------------------------ DISPLAY Methods --------------------------
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public ResultSet displayLessons() throws ClassNotFoundException, SQLException {
+    public ResultSet displayLessons() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -850,10 +1039,21 @@ public class Database {
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Lessons found in the database.");
         }
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+        
         return rs;
     }    
 
-    public ResultSet displayLocations() throws ClassNotFoundException, SQLException {
+    public ResultSet displayLocations() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -863,10 +1063,20 @@ public class Database {
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Locations found in the database.");
         }
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return rs;
     }
 
-    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException {
+    public ResultSet displayUnassignedOfferings(List<String> cityAvailabilities, String activityType) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
 
         if (con == null) {
             getConnection();
@@ -897,10 +1107,20 @@ public class Database {
             System.out.println("Currently no unassigned Offerings found in the database.");
         }
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return rs;
     }
 
-    public ResultSet displayOfferings() throws ClassNotFoundException, SQLException {
+    public ResultSet displayOfferings() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -923,10 +1143,21 @@ public class Database {
         if (!rs.isBeforeFirst()) {
             System.out.println("Currently no Offerings found in the database.");
         }
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return rs;
     }
 
-    public ResultSet displayAssignedOfferingsByLocation(int locationId) throws ClassNotFoundException, SQLException {
+    public ResultSet displayAssignedOfferingsByLocation(int locationId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -955,6 +1186,12 @@ public class Database {
                                                     """);
         prep.setInt(1, locationId);
         ResultSet rs = prep.executeQuery();
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (!rs.isBeforeFirst()) {
             return null;
         }
@@ -962,7 +1199,12 @@ public class Database {
     }
     
 
-    public ResultSet displayClients() throws ClassNotFoundException, SQLException {
+    public ResultSet displayClients() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -972,10 +1214,21 @@ public class Database {
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Clients found in the database.");
         }
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return rs;
     }
 
-    public ResultSet displayInstructors() throws ClassNotFoundException, SQLException {
+    public ResultSet displayInstructors() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -985,10 +1238,21 @@ public class Database {
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Instructors found in the database.");
         }
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         return rs;
     }
 
-    public void displayAllBookings() throws ClassNotFoundException, SQLException {
+    public void displayAllBookings() throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -1003,6 +1267,11 @@ public class Database {
         PreparedStatement prep = con.prepareStatement(query);
         ResultSet rs = prep.executeQuery();
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Bookings found in the database.");
         } else {
@@ -1014,7 +1283,12 @@ public class Database {
         }
     }
 
-    public ResultSet displayAssignedOfferingsByInstructor(int instructorId) throws ClassNotFoundException, SQLException {
+    public ResultSet displayAssignedOfferingsByInstructor(int instructorId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -1043,13 +1317,24 @@ public class Database {
                                                     """);
         prep.setInt(1, instructorId);
         ResultSet rs = prep.executeQuery();
+
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (!rs.isBeforeFirst()) {
             return null;
         }
         return rs;
     }
 
-    public void displayBookingsByClient(int clientId) throws ClassNotFoundException, SQLException {
+    public void displayBookingsByClient(int clientId) throws ClassNotFoundException, SQLException, InterruptedException {
+        mutex.acquire();
+        readCount++;
+        if (readCount == 1) writeBlock.acquire();
+        mutex.release();
+        
         if (con == null) {
             getConnection();
         }
@@ -1075,6 +1360,11 @@ public class Database {
         prep.setInt(1, clientId);
         ResultSet rs = prep.executeQuery();
     
+        mutex.acquire();
+        readCount--;
+        if (readCount == 0) writeBlock.release();
+        mutex.release();
+
         if (!rs.isBeforeFirst()) { // Check if ResultSet is empty
             System.out.println("Currently no Bookings found in the database.");
         } else {
@@ -1096,7 +1386,9 @@ public class Database {
     // ------------------------------ DELETE Methods ---------------------------
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    public void deleteClient(int clientId) throws SQLException, ClassNotFoundException {
+    public void deleteClient(int clientId) throws SQLException, ClassNotFoundException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -1105,6 +1397,9 @@ public class Database {
         prep.setInt(1, clientId);
     
         int rowsAffected = prep.executeUpdate();
+
+        writeBlock.release();
+
         if (rowsAffected > 0) {
             System.out.println("\nClient with ID " + clientId + " has been deleted.");
         } else {
@@ -1112,7 +1407,9 @@ public class Database {
         }
     }    
 
-    public void deleteInstructor(int instructorId) throws SQLException, ClassNotFoundException {
+    public void deleteInstructor(int instructorId) throws SQLException, ClassNotFoundException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -1121,6 +1418,9 @@ public class Database {
         prep.setInt(1, instructorId);
     
         int rowsAffected = prep.executeUpdate();
+
+        writeBlock.release();
+
         if (rowsAffected > 0) {
             System.out.println("\nInstructor with ID " + instructorId + " has been deleted.");
         } else {
@@ -1128,7 +1428,9 @@ public class Database {
         }
     }
 
-    public void deleteBooking(int bookingId) throws SQLException, ClassNotFoundException {
+    public void deleteBooking(int bookingId) throws SQLException, ClassNotFoundException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -1221,10 +1523,12 @@ public class Database {
             offeringAvailabilityPrep.setInt(1, offeringId);
             offeringAvailabilityPrep.execute();
         }
-
+        writeBlock.release();
     }
 
-    public void deleteOffering(int offeringId) throws SQLException, ClassNotFoundException {
+    public void deleteOffering(int offeringId) throws SQLException, ClassNotFoundException, InterruptedException {
+        writeBlock.acquire();
+        
         if (con == null) {
             getConnection();
         }
@@ -1260,6 +1564,7 @@ public class Database {
             //restore the auto-commit mode
             con.setAutoCommit(true);
         }
+        writeBlock.release();
     }
 }
 

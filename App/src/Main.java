@@ -16,7 +16,7 @@ public class Main {
     static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
     static RegisteredUser loggedUser = null;
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         try {
             db.getConnection();
@@ -63,12 +63,12 @@ public class Main {
             }
             key.close();
 
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException | InterruptedException e) {
             e.printStackTrace();
         }
     }
 
-    public static void userLogin() throws ClassNotFoundException, SQLException{
+    public static void userLogin() throws ClassNotFoundException, SQLException, InterruptedException{
         System.out.println("\nPlease pick one of the following options:\n" + 
                             "1. Login as Client\n" +
                             "2. Login as Instructor\n" +
@@ -108,7 +108,7 @@ public class Main {
         }
     }
 
-    public static void userRegistration() throws ClassNotFoundException, SQLException {
+    public static void userRegistration() throws ClassNotFoundException, SQLException, InterruptedException {
         System.out.println("Please pick one of the following options:\n" + 
                             "1. Register as Client\n" +
                             "2. Register as Instructor\n" +
@@ -208,7 +208,7 @@ public class Main {
         key.nextLine();
     }
 
-    public static void adminMenu() throws ClassNotFoundException, SQLException {
+    public static void adminMenu() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("\nHello " + loggedUser.getName() + ",");
         while(true){
@@ -263,7 +263,7 @@ public class Main {
         }
     }
 
-    public static void addOffering() throws ClassNotFoundException, SQLException {
+    public static void addOffering() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
 
         // Let Admin create a new or select an existing location
@@ -373,7 +373,7 @@ public class Main {
         key.nextLine();
     }
 
-    public static void manageBookingsAdmin() throws ClassNotFoundException, SQLException {
+    public static void manageBookingsAdmin() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("Which booking would you like to delete?");
         db.displayAllBookings();
@@ -384,7 +384,7 @@ public class Main {
         db.deleteBooking(bookingId);
     }
 
-    public static void manageOfferingsAdmin() throws ClassNotFoundException, SQLException {
+    public static void manageOfferingsAdmin() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("Which offering would you like to delete?");
         ResultSet rs = db.displayOfferings();
@@ -400,7 +400,8 @@ public class Main {
         db.deleteOffering(offeringId);
     }
 
-    public static Timeslot createLocationTimeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule locationSchedule) throws ClassNotFoundException, SQLException{
+
+    public static Timeslot createLocationTimeslot(String day, LocalTime startTime, LocalTime endTime, LocalDate startDate, LocalDate endDate, Schedule locationSchedule) throws ClassNotFoundException, SQLException, InterruptedException{
         Timeslot timeslot = new Timeslot(day, startTime, endTime, startDate, endDate);
         if (locationSchedule.isAvailableTimeslot(timeslot)) {
             locationSchedule.addTimeSlot(timeslot);
@@ -412,7 +413,9 @@ public class Main {
         }
     }
 
-    public static void instructorMenu() throws ClassNotFoundException, SQLException {
+
+
+    public static void instructorMenu() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("\nHello " + loggedUser.getName() + ",");
         while(true){
@@ -473,7 +476,7 @@ public class Main {
         }
     }
 
-    public static void assignOffering() throws ClassNotFoundException, SQLException {
+    public static void assignOffering() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("Please pick an offering to assign to yourself by entering their ID.");
         Instructor instructor = (Instructor) loggedUser;
@@ -519,7 +522,7 @@ public class Main {
         return list;
     }
 
-    public static void manageAccounts() throws ClassNotFoundException, SQLException{
+    public static void manageAccounts() throws ClassNotFoundException, SQLException, InterruptedException{
         Scanner key = new Scanner(System.in);
 
         System.out.print("\nWould you like to view Instructor accounts (1) or Client accounts (2)?: ");
@@ -565,7 +568,7 @@ public class Main {
         } while (userOption != 1 && userOption != 2);
     }
 
-    public static void clientMenu() throws ClassNotFoundException, SQLException {
+    public static void clientMenu() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         System.out.println("\nHello " + loggedUser.getName() + ",");
         while(true){
@@ -611,7 +614,7 @@ public class Main {
         }
     }
 
-    public static void browsableOfferings() throws ClassNotFoundException, SQLException {
+    public static void browsableOfferings() throws ClassNotFoundException, SQLException, InterruptedException {
         ResultSet rsL = db.displayLocations();
         System.out.println();
             while (rsL.next()){
@@ -642,7 +645,7 @@ public class Main {
             }
     }
 
-    public static void manageBookingsClient() throws ClassNotFoundException, SQLException {
+    public static void manageBookingsClient() throws ClassNotFoundException, SQLException, InterruptedException {
         Scanner key = new Scanner(System.in);
         db.displayBookingsByClient(((Client) loggedUser).getId());
         System.out.println("\nSelect an option below:" + 

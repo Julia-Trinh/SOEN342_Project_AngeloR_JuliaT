@@ -9,7 +9,7 @@ public class Organization {
     private List<Location> locations;
     Database db = Database.getInstance();
 
-    public Organization(String name) throws ClassNotFoundException, SQLException{
+    public Organization(String name) throws ClassNotFoundException, SQLException, InterruptedException{
         this.name = name;
         id = db.addOrganization(name);
     }

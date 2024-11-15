@@ -8,7 +8,7 @@ public class Instructor extends RegisteredUser{
     private Schedule schedule;
     Database db = Database.getInstance();
 
-    public Instructor(String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities) throws ClassNotFoundException, SQLException{
+    public Instructor(String username, String password, String name, int phoneNumber, String activityType, List<String> cityAvailabilities) throws ClassNotFoundException, SQLException, InterruptedException{
         super(username, password, name, phoneNumber);
         this.activityType = activityType;
         this.cityAvailabilities = cityAvailabilities;
@@ -29,7 +29,7 @@ public class Instructor extends RegisteredUser{
         return id;
     }
 
-    public void pickOffering(Offering offering) throws ClassNotFoundException, SQLException{
+    public void pickOffering(Offering offering) throws ClassNotFoundException, SQLException, InterruptedException{
         if (schedule.isAvailableTimeslot(offering.getTimeslot()) && cityAvailabilities.contains(offering.getLocation().getCity())){
             offerings.add(offering);
             offering.assignOffering(this);
@@ -39,7 +39,7 @@ public class Instructor extends RegisteredUser{
         }
     }
 
-    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException{
+    public void addTimeSlot(Timeslot timeslot) throws ClassNotFoundException, SQLException, InterruptedException{
         if (schedule.isAvailableTimeslot(timeslot)) {
             schedule.addTimeSlot(timeslot);
         }
