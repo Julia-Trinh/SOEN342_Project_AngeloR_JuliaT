@@ -538,7 +538,11 @@ public class Database extends Thread{
             }
         }
 
+        writeBlock.release();
+
         int newTimeslotId = addTimeslot(day, startTime, endTime, startDate, endDate);
+
+        writeBlock.acquire();
 
         PreparedStatement updateTimeslotPrep = con.prepareStatement("UPDATE Timeslot SET scheduleId = ? WHERE id = ?");
         updateTimeslotPrep.setInt(1, scheduleId);
