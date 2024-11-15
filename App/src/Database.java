@@ -573,7 +573,7 @@ public class Database extends Thread{
         return id;
     }
 
-    public void addInstructorTimeslot(Schedule instructorSchedule, Timeslot selectedTimeslot) throws ClassNotFoundException, SQLException {
+    public void addInstructorTimeslot(Schedule instructorSchedule, Timeslot selectedTimeslot) throws ClassNotFoundException, SQLException, InterruptedException {
         if (con == null) {
             getConnection();
         }
