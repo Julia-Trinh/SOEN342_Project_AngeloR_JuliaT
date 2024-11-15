@@ -5,6 +5,9 @@
 | Angelo Reoligio | 40191187 | areoligio@gmail.com | Angewoah |
 | Julia Trinh | 40245980 | juliatrinh2002@gmail.com | Julia-Trinh |
 
+## Demo
+[Link to demo](https://github.com/Julia-Trinh/SOEN342_Project_AngeloR_JuliaT/tree/main/Demo)
+
 ## Useful Links
 [Link to diagrams in Draw.io](https://drive.google.com/file/d/1B-DQEIrg5-q5uexEtV7EV0EstZs1_v_w/view?usp=sharing)
 
